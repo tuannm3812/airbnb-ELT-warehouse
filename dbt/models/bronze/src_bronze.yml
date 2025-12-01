@@ -1,0 +1,23 @@
+version: 2
+
+sources:
+  - name: raw
+    # This must match the schema where Airflow loaded the CSVs
+    schema: bronze 
+    description: "Raw data loaded from GCS by Airflow."
+    tables:
+      - name: airbnb_listings_raw
+        description: "Raw Airbnb listings data (May 2020 - April 2021)."
+        # Optional: Add data freshness checks here later
+
+      - name: census_g01_raw
+        description: "Raw Census G01 (Age/Population) data."
+
+      - name: census_g02_raw
+        description: "Raw Census G02 (Medians) data. Wide table."
+
+      - name: nsw_lga_code_raw
+        description: "Mapping of LGA Codes to Names."
+
+      - name: nsw_lga_suburb_raw
+        description: "Mapping of Suburbs to LGA Names."

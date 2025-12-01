@@ -1,0 +1,55 @@
+version: 2
+
+models:
+  # --- Star Schema Tables ---
+  - name: g_fact_listing_monthly
+    description: "Monthly Snapshot Fact Table for Listings"
+    columns:
+      - name: listing_id
+        tests: [not_null]
+      - name: fact_month
+        tests: [not_null]
+
+  - name: g_dim_lga
+    columns:
+      - name: lga_dim_id
+        tests: [unique, not_null]
+
+  - name: g_dim_host
+    columns:
+      - name: host_dim_id
+        tests: [unique, not_null]
+
+  - name: g_dim_neighbourhood
+    columns:
+      - name: neighbourhood_dim_id
+        tests: [unique, not_null]
+
+  - name: g_dim_property
+    columns:
+      - name: property_dim_id
+        tests: [unique, not_null]
+
+  - name: g_census_g01
+    description: "Gold Reference: Census Demographics (Population by Age/Sex)"
+    columns:
+      - name: lga_code
+        tests: [unique, not_null]
+
+  - name: g_census_g02
+    description: "Gold Reference: Census Medians (Income, Rent, Mortgage)"
+    columns:
+      - name: lga_code
+        tests: [unique, not_null]
+
+  # --- Data Marts ---
+  - name: dm_host_neighbourhood
+    description: "Mart: Host LGA performance metrics"
+  
+  - name: dm_listing_neighbourhood
+    description: "Mart: Listing Neighbourhood performance metrics"
+    
+  - name: dm_property_type
+    description: "Mart: Property Type performance metrics"
+
+  

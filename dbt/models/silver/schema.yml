@@ -1,0 +1,28 @@
+version: 2
+
+models:
+  - name: s_listings_clean
+    description: "Cleaned Airbnb listings with correct types."
+    columns:
+      - name: listing_id
+        tests: [not_null]
+      - name: updated_at
+        tests: [not_null]
+
+  - name: s_dim_host
+    description: "Prepared Host dimension for snapshotting."
+    columns:
+      - name: host_id
+        tests: [not_null, unique]
+
+  - name: s_dim_lga
+    description: "Prepared LGA dimension for snapshotting."
+    columns:
+      - name: lga_code
+        tests: [not_null, unique]
+
+  - name: s_bridge_lga_suburb
+    description: "Bridge table mapping Suburbs to LGAs."
+    tests:
+      - unique:
+          column_name: "(lga_code || '-' || suburb_name)"
