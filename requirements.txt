@@ -1,0 +1,5 @@
+apache-airflow>=2.0.0
+apache-airflow-providers-google
+apache-airflow-providers-postgres
+requests
+pandas

@@ -1,0 +1,30 @@
+# Python / Virtual Env
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+*.egg-info/
+
+# dbt artifacts
+dbt/target/
+dbt/dbt_packages/
+dbt/logs/
+dbt/seeds/
+profiles.yml
+
+# Airflow
+airflow.cfg
+airflow.db
+unittests.cfg
+logs/
+
+# IDE settings
+.vscode/
+.idea/
+.DS_Store
+
+# Credentials / Secrets
+.env
+*creds*
+*key*

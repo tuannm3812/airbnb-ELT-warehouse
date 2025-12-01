@@ -17,8 +17,7 @@ The final output is a Star Schema and Data Marts capable of answering key busine
 
 The pipeline operates on Google Cloud Platform (Cloud Composer, GCS) and utilizes dbt Cloud for transformation logic.
 
-![Architecture Diagram](\\report\\bde_at3_architect_flow.png)
-*(Please insert your architecture diagram image here)*
+![Architecture Diagram](report/bde_at3_architect_flow.png)
 
 **Key Architectural Features:**
 * **Idempotency:** Loaders truncate Bronze tables on initial load; Silver layer handles deduplication using deterministic ordering rules.
