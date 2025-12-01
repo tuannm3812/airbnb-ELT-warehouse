@@ -6,6 +6,8 @@
 ![Postgres](https://img.shields.io/badge/PostgreSQL-13+-336791?logo=postgresql&logoColor=white)
 ![Status](https://img.shields.io/badge/Status-Complete-success)
 
+![Header Image](https://www.realestate.com.au/news-image/w_1280,h_720/v1743109398/news-lifestyle-content-assets/wp-content/production/capi_66e50ad6861c43dbf0bfbe364f663d5f_e58997b3f701d49d4cb6291f6204b1e1.jpeg?_i=AA)
+
 ## 📖 Executive Summary
 This project implements a production-ready ELT (Extract, Load, Transform) pipeline to ingest, transform, and analyze Airbnb and Australian Census data for Sydney. The pipeline follows a **Medallion Architecture** (Bronze $\to$ Silver $\to$ Gold) to ensure data quality and traceability.
 
