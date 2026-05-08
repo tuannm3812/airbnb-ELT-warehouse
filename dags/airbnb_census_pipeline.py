@@ -1,9 +1,8 @@
 # ============================================================================
-# DAG: bde_at3_part1_and_part3
+# DAG: airbnb_census_monthly_pipeline
 # Purpose:
-#   - Part 1: Bootstrap Bronze + initial loads (May 2020) + Dimensions.
-#   - Part 3: Load remaining Airbnb months sequentially (Append Mode),
-#             trigger dbt Cloud, and archive.
+#   - Bootstrap Bronze and initial reference data.
+#   - Load monthly Airbnb extracts sequentially, trigger dbt Cloud, and archive.
 # ============================================================================
 
 import csv
@@ -13,7 +12,7 @@ import os
 import re
 import shutil
 import time
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Iterable, List, Optional, Tuple
 
 import requests
@@ -33,7 +32,7 @@ TMP_DIR = "/tmp"  # Local disk for temp processing
 
 BRONZE_SCHEMA = "bronze"
 PG_CONN_ID = "postgres"
-SQL_FILE_PATH = "sql/part_1.sql"
+SQL_FILE_PATH = "sql/init_bronze_schema.sql"
 
 # Base folders
 AIRBNB_DIR = os.path.join(AIRFLOW_DATA, "airbnb")
@@ -41,7 +40,7 @@ CENSUS_G01_DIR = os.path.join(AIRFLOW_DATA, "census", "G01")
 CENSUS_G02_DIR = os.path.join(AIRFLOW_DATA, "census", "G02")
 MAPPINGS_DIR = os.path.join(AIRFLOW_DATA, "mappings")
 
-# Fixed-file paths (Part 1)
+# Initial-load files
 AIRBNB_052020_PATH = os.path.join(AIRBNB_DIR, "05_2020.csv")
 G01_PATH = os.path.join(CENSUS_G01_DIR, "2016Census_G01_NSW_LGA.csv")
 G02_PATH = os.path.join(CENSUS_G02_DIR, "2016Census_G02_NSW_LGA.csv")
@@ -64,8 +63,11 @@ AIRBNB_COLS: Tuple[str, ...] = (
     "review_scores_communication", "review_scores_value",
 )
 
-# Gates
-RUN_PART1 = Variable.get("RUN_PART1", "true").lower() == "true"
+# Gates. RUN_PART1 is retained as a backwards-compatible variable name.
+RUN_INITIAL_LOAD = Variable.get(
+    "RUN_INITIAL_LOAD",
+    Variable.get("RUN_PART1", "true"),
+).lower() == "true"
 
 # -------------------------
 # Helpers
@@ -187,7 +189,7 @@ def load_with_autocreate(table: str, file_path: str,
         os.remove(source_path)
 
 def discover_month_files() -> List[str]:
-    """Finds MM_YYYY.csv files, excluding May 2020 (handled in Part 1)."""
+    """Find MM_YYYY.csv files, excluding the May 2020 baseline file."""
     if not os.path.isdir(AIRBNB_DIR):
         logging.warning("Airbnb directory not found during parse: %s", AIRBNB_DIR)
         return []
@@ -201,9 +203,9 @@ def discover_month_files() -> List[str]:
             continue
         files.append(((int(m.group("yyyy")), int(m.group("mm"))), os.path.join(AIRBNB_DIR, fname)))
     
-    files.sort(key=lambda x: x[0]) # Sort by (Year, Month) tuple
+    files.sort(key=lambda x: x[0])
     paths = [fp for _, fp in files]
-    logging.info("Discovered %d monthly files for Part 3: %s", len(paths), paths)
+    logging.info("Discovered %d monthly listing files: %s", len(paths), paths)
     return paths
 
 # ---- dbt Cloud Logic ----
@@ -263,22 +265,22 @@ def archive_single(file_path: str) -> None:
 # DAG Definition
 # -------------------------
 with DAG(
-    dag_id="bde_at3_part1_and_part3",
-    description="Loads May 2020 + Dimensions (Part 1), then loads remaining months sequentially (Part 3).",
+    dag_id="airbnb_census_monthly_pipeline",
+    description="Loads baseline Airbnb/Census data, then processes monthly Airbnb extracts sequentially.",
     start_date=datetime(2024, 1, 1),
     schedule=None,
     catchup=False,
     max_active_runs=1,
-    tags=["bde-at3", "bronze", "airbnb"],
+    tags=["airbnb", "census", "bronze", "dbt"],
 ) as dag:
 
     start = EmptyOperator(task_id="start")
     end   = EmptyOperator(task_id="end")
 
     # ==========================
-    # PART 1: Initial Bootstrap
+    # Initial bootstrap
     # ==========================
-    if RUN_PART1:
+    if RUN_INITIAL_LOAD:
         run_part1_sql = PostgresOperator(
             task_id="run_part1_sql",
             postgres_conn_id=PG_CONN_ID,
@@ -292,7 +294,7 @@ with DAG(
                 "table": "airbnb_listings_raw",
                 "file_path": AIRBNB_052020_PATH,
                 "fixed_columns": AIRBNB_COLS,
-                "truncate": True, # Always truncate for initial load
+                "truncate": True,
             },
         )
 
@@ -311,14 +313,12 @@ with DAG(
             op_kwargs={"file_path": G01_PATH, "archive_dir": G01_ARCHIVE},
         )
 
-        # REFINED: No fixed columns for G02 (Dynamic Width)
         load_census_g02 = PythonOperator(
             task_id="load_census_g02",
             python_callable=load_with_autocreate,
             op_kwargs={
                 "table": "census_g02_raw",
                 "file_path": G02_PATH,
-                # "fixed_columns": G02_COLS, <--- REMOVED
                 "truncate": True,
             },
         )
@@ -343,7 +343,6 @@ with DAG(
             op_kwargs={"file_path": LGA_CODE_PATH, "archive_dir": MAPPINGS_ARCHIVE},
         )
 
-        # REFINED: Added clip_to_cols for Suburb file
         load_lga_suburb = PythonOperator(
             task_id="load_lga_suburb",
             python_callable=load_with_autocreate,
@@ -351,7 +350,7 @@ with DAG(
                 "table": "nsw_lga_suburb_raw",
                 "file_path": LGA_SUBURB_PATH,
                 "truncate": True,
-                "clip_to_cols": 2, # Clean trailing commas
+                "clip_to_cols": 2,
             },
         )
         archive_lga_suburb = PythonOperator(
@@ -364,7 +363,7 @@ with DAG(
             task_id="dbt_after_initial",
             python_callable=trigger_dbt_cloud_job_and_wait,
             provide_context=True,
-            params={"cause": "Part 1 - Initial Load"},
+            params={"cause": "Initial warehouse load"},
         )
 
         archive_052020 = PythonOperator(
@@ -386,9 +385,9 @@ with DAG(
         prev_task = start
 
     # ==========================
-    # PART 3: Sequential Months
+    # Sequential monthly loads
     # ==========================
-    # Loop over remaining files (e.g., 06_2020 ... 04_2021)
+    # Loop over remaining files, for example 06_2020 through 04_2021.
     for fp in discover_month_files():
         base = os.path.basename(fp)
         safe_name = re.sub(r"[^a-zA-Z0-9_]+", "_", base).rstrip("_")
@@ -400,7 +399,7 @@ with DAG(
                 "table": "airbnb_listings_raw",
                 "file_path": fp,
                 "fixed_columns": AIRBNB_COLS,
-                "truncate": False, # APPEND mode to preserve history for snapshots
+                "truncate": False,
             },
         )
 
@@ -408,7 +407,7 @@ with DAG(
             task_id=f"dbt_after_{safe_name}",
             python_callable=trigger_dbt_cloud_job_and_wait,
             provide_context=True,
-            params={"cause": f"Part 3 - Loading {base}"},
+            params={"cause": f"Loading {base}"},
         )
 
         archive_task = PythonOperator(

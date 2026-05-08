@@ -1,8 +1,7 @@
 # ============================================================================
-# DAG: bde_at3_part1_initial_load
+# DAG: airbnb_census_initial_bronze_load
 # Purpose: Load initial raw Airbnb (05_2020), ABS Census (G01/G02),
-#          NSW LGA code, and LGA↔Suburb mapping into Postgres Bronze.
-# Owner:   Data Engineering (bde_at3)
+#          NSW LGA code, and LGA-to-suburb mapping into Postgres Bronze.
 # ============================================================================
 
 # Standard library
@@ -26,7 +25,7 @@ from airflow.providers.postgres.operators.postgres import PostgresOperator
 AIRFLOW_DATA: str = "/home/airflow/gcs/data"
 BRONZE_SCHEMA: str = "bronze"
 PG_CONN_ID: str = "postgres"
-SQL_FILE_PATH: str = "sql/part_1.sql"
+SQL_FILE_PATH: str = "sql/init_bronze_schema.sql"
 
 # Folders
 AIRBNB_DIR: str = os.path.join(AIRFLOW_DATA, "airbnb")
@@ -323,7 +322,7 @@ def load_with_autocreate(
     if clip_to_cols and os.path.exists(source_path):
         os.remove(source_path)
 
-    # Archive original file (Optional: Disable during dev)
+    # Archive original file after a successful load.
     if archive_dir and os.path.exists(file_path):
         archive_input(file_path, archive_dir)
 
@@ -333,13 +332,13 @@ def load_with_autocreate(
 # ================================
 
 with DAG(
-    dag_id="bde_at3_part1_initial_load",
+    dag_id="airbnb_census_initial_bronze_load",
     description="Load Airbnb (May 2020), Census, and Mappings to Bronze.",
     start_date=datetime(2024, 1, 1),
     schedule=None,
     catchup=False,
     max_active_runs=1,
-    tags=["bde-at3", "bronze", "airbnb", "census"],
+    tags=["airbnb", "census", "bronze"],
 ) as dag:
 
     run_part1_sql_task = PostgresOperator(
