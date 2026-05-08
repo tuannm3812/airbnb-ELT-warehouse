@@ -1,13 +1,13 @@
 /* ============================================================================
-   FILE: part_4.sql
-   PURPOSE: Ad-hoc analysis for Assignment 3 (Part 4).
+   File: analysis_queries.sql
+   Purpose: Business analysis queries for the Airbnb and Census warehouse.
    NOTES: 
      - Uses 'listing_lga_dim_id' for property location analysis.
      - Window defined dynamically (Last 12 months from max date in data).
    ============================================================================ */
 
 /* ============================================================================
-   Q1: DEMOGRAPHIC DIFFERENCES BETWEEN TOP-3 AND BOTTOM-3 LGAS
+   Analysis 1: demographic differences between top-3 and bottom-3 LGAs.
    ----------------------------------------------------------------------------
    Task: Rank LGAs by revenue/active listing. Compare Top 3 vs Bottom 3 on
          Demographics (Age, Household Size).
@@ -100,7 +100,7 @@ ORDER BY rnk_desc;
 
 
 /* ============================================================================
-   Q2: CORRELATION BETWEEN MEDIAN AGE AND REVENUE
+   Analysis 2: correlation between median age and revenue.
    ----------------------------------------------------------------------------
    Task: Correlation (Pearson) between Census Median Age (LGA level) and 
          Revenue per Active Listing (Neighbourhood level).
@@ -166,7 +166,7 @@ FROM dataset;
 
 
 /* ============================================================================
-   Q3: BEST LISTING CONFIGURATION FOR TOP 5 NEIGHBOURHOODS
+   Analysis 3: best listing configuration for top 5 neighbourhoods.
    ----------------------------------------------------------------------------
    Task: Find the best (Property Type, Room Type, Accommodates) for highest Stays
          in the Top 5 Revenue-generating Neighbourhoods.
@@ -225,7 +225,7 @@ ORDER BY listing_neighbourhood;
 
 
 /* ============================================================================
-   Q4: HOST CONCENTRATION (Single vs Distributed LGAs)
+   Analysis 4: host concentration across LGAs.
    ----------------------------------------------------------------------------
    Task: Do multi-listing hosts keep properties in one LGA or spread them out?
    Refinement: Must use 'listing_lga_dim_id' to see where properties ARE.
@@ -272,7 +272,7 @@ GROUP BY 1;
 
 
 /* ============================================================================
-   Q5: MORTGAGE REPAYMENT AFFORDABILITY
+   Analysis 5: mortgage repayment affordability.
    ----------------------------------------------------------------------------
    Task: Can single-listing hosts cover the LGA's median mortgage with revenue?
    Refinement: Compare Listing Revenue vs Listing LGA Mortgage.

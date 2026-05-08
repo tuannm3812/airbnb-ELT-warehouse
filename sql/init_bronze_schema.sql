@@ -1,5 +1,5 @@
 /* ============================================================================
-   File: part_1.sql
+   File: init_bronze_schema.sql
    Purpose: Initialize Bronze schema and base tables for Airflow ingestion.
    Notes:
      - Uses TEXT for all columns to ensure robust loading.
@@ -8,12 +8,12 @@
        them dynamically to adapt to changing column counts.
    ============================================================================ */
 
--- 1. Setup Schemas
+-- Setup schemas.
 CREATE SCHEMA IF NOT EXISTS bronze;
 CREATE SCHEMA IF NOT EXISTS silver;
 CREATE SCHEMA IF NOT EXISTS gold;
 
--- 2. Airbnb Listings Raw (Fixed Schema)
+-- Airbnb listings raw table.
 DROP TABLE IF EXISTS bronze.airbnb_listings_raw;
 CREATE TABLE bronze.airbnb_listings_raw (
     listing_id                  TEXT,
@@ -40,14 +40,14 @@ CREATE TABLE bronze.airbnb_listings_raw (
     review_scores_value         TEXT
 );
 
--- 3. LGA Code Mapping (Fixed Schema)
+-- LGA code mapping.
 DROP TABLE IF EXISTS bronze.nsw_lga_code_raw;
 CREATE TABLE bronze.nsw_lga_code_raw (
     lga_code TEXT,
     lga_name TEXT
 );
 
--- 4. LGA Suburb Mapping (Fixed Schema)
+-- LGA suburb mapping.
 DROP TABLE IF EXISTS bronze.nsw_lga_suburb_raw;
 CREATE TABLE bronze.nsw_lga_suburb_raw (
     lga_name    TEXT,
