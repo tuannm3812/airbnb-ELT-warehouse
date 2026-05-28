@@ -1,0 +1,20 @@
+version: 2
+
+exposures:
+  - name: metabase_sydney_airbnb_market_overview
+    label: Sydney Airbnb Market Overview
+    type: dashboard
+    maturity: medium
+    url: http://localhost:3000
+    description: >
+      Local Metabase dashboard over the Airbnb Census Gold marts. The dashboard
+      is intended to track neighbourhood revenue, host concentration, property
+      performance, and monthly listing supply.
+    depends_on:
+      - ref('dm_listing_neighbourhood')
+      - ref('dm_property_type')
+      - ref('dm_host_neighbourhood')
+      - ref('g_fact_listing_monthly')
+    owner:
+      name: Tuan Nguyen
+      email: tuannm3812@gmail.com

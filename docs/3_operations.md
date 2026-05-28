@@ -54,7 +54,21 @@ docker compose exec -T airflow-scheduler bash -lc "cd /opt/airflow/dbt && dbt bu
 Use this for model and test development. For full SCD2 validation, run the main
 Airflow DAG because snapshots depend on sequential monthly loads.
 
-## 3.7 Query Warehouse
+## 3.7 Run Quality Checks
+
+Run lightweight local checks:
+
+```bash
+./scripts/run_quality_checks.sh
+```
+
+Run Docker-backed dbt build and smoke test too:
+
+```bash
+RUN_DOCKER_DBT_BUILD=true RUN_PIPELINE_SMOKE_TEST=true ./scripts/run_quality_checks.sh
+```
+
+## 3.8 Query Warehouse
 
 ```bash
 docker compose exec -T postgres psql -U postgres -d airbnb_census
@@ -74,7 +88,7 @@ union all
 select 'analytics_gold.g_dim_property', count(*) from analytics_gold.g_dim_property;
 ```
 
-## 3.8 Restage Source Data
+## 3.9 Restage Source Data
 
 ```bash
 ./scripts/stage_at3_data.sh
@@ -82,13 +96,13 @@ select 'analytics_gold.g_dim_property', count(*) from analytics_gold.g_dim_prope
 
 This unpacks the source ZIPs into `data/` and removes macOS resource-fork files.
 
-## 3.9 Stop Services
+## 3.10 Stop Services
 
 ```bash
 docker compose down
 ```
 
-## 3.10 Full Reset
+## 3.11 Full Reset
 
 Use this when you want a fresh local database:
 
@@ -100,7 +114,7 @@ docker compose up -d
 docker compose exec -T airflow-scheduler airflow dags trigger airbnb_census_monthly_pipeline
 ```
 
-## 3.11 Troubleshooting
+## 3.12 Troubleshooting
 
 If Airflow cannot see DAG changes:
 

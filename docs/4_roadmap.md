@@ -11,8 +11,11 @@ Completed:
 - Local source-file staging without Google Cloud Storage.
 - Full Airflow pipeline run.
 - Local dbt build with tests and snapshots.
+- dbt exposure for the local Metabase dashboard.
+- Lightweight CI workflow and local quality-check script.
 - Smoke test for latest run and key warehouse outputs.
 - Numbered project documentation.
+- Portfolio-oriented `PROJECT_SUMMARY.md`.
 
 ## 4.2 Next Priorities
 
@@ -37,7 +40,7 @@ Options:
 
 Recommended next step:
 
-- Add a run summary table or task log summary first.
+- Build on the current TaskGroups with a run summary table or task log summary.
 - Refactor to dynamic task mapping after the current baseline is fully documented.
 
 ### 4.2.3 Improve The BI Layer
@@ -65,16 +68,15 @@ Ideas:
 - Add monthly row count checks.
 - Add source freshness checks where a source date is available.
 
-### 4.2.5 Add CI
+### 4.2.5 Improve CI
 
-Goal: verify the project on every push.
+Goal: move from lightweight syntax/parse checks toward fuller automated verification.
 
 Ideas:
 
-- `dbt parse`
 - SQL linting
-- Python syntax check for DAGs
 - optional Docker Compose smoke test on selected branches
+- scheduled local/full Docker validation before releases
 
 ### 4.2.6 Publish Portfolio Story
 
@@ -91,6 +93,6 @@ Deliverables:
 
 1. Build the first Metabase dashboard over `analytics_gold`.
 2. Add screenshots under `docs/assets/screenshots/`.
-3. Add a `PROJECT_SUMMARY.md`.
-4. Add more dbt tests for fact-to-dimension relationships.
+3. Add more dashboard screenshots and final findings to `PROJECT_SUMMARY.md`.
+4. Add SQL linting.
 5. Refactor monthly processing to dynamic task mapping.

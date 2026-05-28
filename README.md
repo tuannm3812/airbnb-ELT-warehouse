@@ -27,6 +27,9 @@ Core design choices:
 
 ```text
 .
+|-- .github/
+|   `-- workflows/
+|       `-- ci.yml                    # Lightweight CI checks
 |-- dags/
 |   |-- airbnb_census_pipeline.py     # Main Airflow pipeline for initial and monthly loads
 |   `-- initial_bronze_load.py        # Standalone Bronze bootstrap DAG
@@ -56,11 +59,14 @@ Core design choices:
 |   `-- archive/
 |       `-- local_demo.md
 |-- scripts/
+|   |-- check_pipeline_outputs.sh     # Smoke test for latest local pipeline run
+|   |-- run_quality_checks.sh         # Syntax, dbt parse, and optional Docker checks
 |   `-- stage_at3_data.sh             # Unpacks source ZIP files into local data folders
 |-- sql/
 |   |-- init_bronze_schema.sql        # Warehouse schema bootstrap DDL
 |   `-- analysis_queries.sql          # Business analysis query pack
 |-- docker-compose.yml
+|-- PROJECT_SUMMARY.md
 |-- requirements.txt
 `-- README.md
 ```
@@ -76,6 +82,8 @@ For the project roadmap, see [docs/4_roadmap.md](docs/4_roadmap.md).
 For Metabase dashboard setup, see [docs/5_dashboard_guide.md](docs/5_dashboard_guide.md).
 
 For dbt model flow and SCD2 details, see [docs/7_dbt_guide.md](docs/7_dbt_guide.md).
+
+For a concise portfolio-oriented overview, see [PROJECT_SUMMARY.md](PROJECT_SUMMARY.md).
 
 Prerequisites:
 

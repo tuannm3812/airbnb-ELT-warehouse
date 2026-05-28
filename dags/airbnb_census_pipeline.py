@@ -23,6 +23,7 @@ from airflow.models import Variable
 from airflow.operators.empty import EmptyOperator
 from airflow.operators.python import PythonOperator
 from airflow.providers.postgres.hooks.postgres import PostgresHook
+from airflow.utils.task_group import TaskGroup
 from psycopg2.errors import DuplicateSchema, UniqueViolation
 
 # -------------------------
@@ -372,14 +373,20 @@ with DAG(
     # Initial bootstrap
     # ==========================
     if RUN_INITIAL_LOAD:
+        bootstrap_group = TaskGroup(group_id="bootstrap_bronze")
+        reference_group = TaskGroup(group_id="load_reference_data")
+        dbt_group = TaskGroup(group_id="initial_dbt_snapshot")
+
         run_part1_sql = PythonOperator(
             task_id="run_part1_sql",
+            task_group=bootstrap_group,
             python_callable=run_sql_file,
             op_kwargs={"file_path": SQL_FILE_PATH},
         )
 
         load_airbnb_052020 = PythonOperator(
             task_id="load_airbnb_05_2020",
+            task_group=bootstrap_group,
             python_callable=load_with_autocreate,
             op_kwargs={
                 "table": "airbnb_listings_raw",
@@ -391,6 +398,7 @@ with DAG(
 
         load_census_g01 = PythonOperator(
             task_id="load_census_g01",
+            task_group=reference_group,
             python_callable=load_with_autocreate,
             op_kwargs={
                 "table": "census_g01_raw",
@@ -400,12 +408,14 @@ with DAG(
         )
         archive_g01 = PythonOperator(
             task_id="archive_g01",
+            task_group=reference_group,
             python_callable=archive_input,
             op_kwargs={"file_path": G01_PATH, "archive_dir": G01_ARCHIVE},
         )
 
         load_census_g02 = PythonOperator(
             task_id="load_census_g02",
+            task_group=reference_group,
             python_callable=load_with_autocreate,
             op_kwargs={
                 "table": "census_g02_raw",
@@ -415,12 +425,14 @@ with DAG(
         )
         archive_g02 = PythonOperator(
             task_id="archive_g02",
+            task_group=reference_group,
             python_callable=archive_input,
             op_kwargs={"file_path": G02_PATH, "archive_dir": G02_ARCHIVE},
         )
 
         load_lga_code = PythonOperator(
             task_id="load_lga_code",
+            task_group=reference_group,
             python_callable=load_with_autocreate,
             op_kwargs={
                 "table": "nsw_lga_code_raw",
@@ -430,12 +442,14 @@ with DAG(
         )
         archive_lga_code = PythonOperator(
             task_id="archive_lga_code",
+            task_group=reference_group,
             python_callable=archive_input,
             op_kwargs={"file_path": LGA_CODE_PATH, "archive_dir": MAPPINGS_ARCHIVE},
         )
 
         load_lga_suburb = PythonOperator(
             task_id="load_lga_suburb",
+            task_group=reference_group,
             python_callable=load_with_autocreate,
             op_kwargs={
                 "table": "nsw_lga_suburb_raw",
@@ -446,12 +460,14 @@ with DAG(
         )
         archive_lga_suburb = PythonOperator(
             task_id="archive_lga_suburb",
+            task_group=reference_group,
             python_callable=archive_input,
             op_kwargs={"file_path": LGA_SUBURB_PATH, "archive_dir": MAPPINGS_ARCHIVE},
         )
 
         dbt_after_initial = PythonOperator(
             task_id="dbt_after_initial",
+            task_group=dbt_group,
             python_callable=trigger_dbt_cloud_job_and_wait,
             provide_context=True,
             params={"cause": "Initial warehouse load"},
@@ -459,6 +475,7 @@ with DAG(
 
         archive_052020 = PythonOperator(
             task_id="archive_airbnb_05_2020",
+            task_group=dbt_group,
             python_callable=archive_single,
             op_kwargs={"file_path": AIRBNB_052020_PATH},
         )
@@ -483,8 +500,11 @@ with DAG(
     else:
         prev_task = start
 
+    monthly_group = TaskGroup(group_id="monthly_incremental_loads")
+
     process_monthly_files = PythonOperator(
         task_id="process_monthly_listing_files",
+        task_group=monthly_group,
         python_callable=process_monthly_listing_files,
     )
 

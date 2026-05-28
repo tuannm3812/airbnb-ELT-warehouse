@@ -1,15 +1,20 @@
 version: 2
 
 models:
-  # --- Star Schema Tables ---
   - name: g_fact_listing_monthly
-    description: "Monthly Snapshot Fact Table for Listings"
+    description: >
+      Monthly listing fact table. Grain is one row per listing_id and fact_month.
+      The table stores resolved SCD2 dimension keys plus listing-level metrics
+      such as price, active flag, estimated stays, and estimated revenue.
     columns:
       - name: listing_id
+        description: Airbnb listing identifier from the source extract.
         tests: [not_null]
       - name: fact_month
+        description: Month represented by the listing observation.
         tests: [not_null]
       - name: neighbourhood_dim_id
+        description: SCD2-resolved listing neighbourhood dimension key.
         tests:
           - relationships:
               to: ref('g_dim_neighbourhood')
@@ -17,6 +22,7 @@ models:
               config:
                 where: "neighbourhood_dim_id != '-1'"
       - name: property_dim_id
+        description: SCD2-resolved property configuration dimension key.
         tests:
           - relationships:
               to: ref('g_dim_property')
@@ -24,6 +30,7 @@ models:
               config:
                 where: "property_dim_id != '-1'"
       - name: host_dim_id
+        description: SCD2-resolved host dimension key.
         tests:
           - relationships:
               to: ref('g_dim_host')
@@ -31,58 +38,177 @@ models:
               config:
                 where: "host_dim_id != '-1'"
       - name: listing_lga_dim_id
+        description: SCD2-resolved LGA key for the listing location.
         tests:
           - relationships:
               to: ref('g_dim_lga')
               field: lga_dim_id
       - name: host_lga_dim_id
+        description: SCD2-resolved LGA key for the host neighbourhood, when mapped.
         tests:
           - relationships:
               to: ref('g_dim_lga')
               field: lga_dim_id
               config:
                 where: "host_lga_dim_id != '-1'"
+      - name: active_flag
+        description: True when the listing had availability in the source extract.
+        tests:
+          - accepted_values:
+              values: [true, false]
+              quote: false
+      - name: avg_price
+        description: Average listing price within the listing-month grain.
+      - name: avg_review_rating
+        description: Average review score rating within the listing-month grain.
+      - name: total_stays_active
+        description: Estimated stays for active listings, calculated as 30 minus availability_30.
+      - name: revenue_active
+        description: Estimated revenue for active listings, calculated as estimated stays times price.
 
   - name: g_dim_lga
+    description: >
+      SCD2 Local Government Area dimension built from NSW LGA reference data.
+      Grain is one row per lga_code and dbt_valid_from.
     columns:
       - name: lga_dim_id
+        description: Surrogate key for the LGA version.
         tests: [unique, not_null]
+      - name: lga_code
+        description: NSW LGA code.
+      - name: lga_name
+        description: NSW LGA name.
+      - name: dbt_valid_from
+        description: Start timestamp for the valid dimension version.
+      - name: dbt_valid_to
+        description: End timestamp for the valid dimension version.
 
   - name: g_dim_host
+    description: >
+      SCD2 host dimension. Grain is one row per host_id and dbt_valid_from.
     columns:
       - name: host_dim_id
+        description: Surrogate key for the host version.
         tests: [unique, not_null]
+      - name: host_id
+        description: Airbnb host identifier.
+      - name: host_name
+        description: Host display name from the source extract.
+      - name: host_since
+        description: Date the host joined Airbnb.
+      - name: host_is_superhost
+        description: Boolean superhost indicator.
+        tests:
+          - accepted_values:
+              values: [true, false]
+              quote: false
+      - name: host_neighbourhood
+        description: Host neighbourhood supplied by the Airbnb extract.
 
   - name: g_dim_neighbourhood
+    description: >
+      SCD2 listing neighbourhood dimension. Grain is one row per neighbourhood
+      natural key and dbt_valid_from.
     columns:
       - name: neighbourhood_dim_id
+        description: Surrogate key for the neighbourhood version.
         tests: [unique, not_null]
+      - name: listing_neighbourhood
+        description: Listing neighbourhood/LGA value from the Airbnb extract.
 
   - name: g_dim_property
+    description: >
+      SCD2 property configuration dimension. Grain is one row per property type,
+      room type, accommodates, and dbt_valid_from.
     columns:
       - name: property_dim_id
+        description: Surrogate key for the property configuration version.
         tests: [unique, not_null]
+      - name: property_type
+        description: Airbnb property type.
+      - name: room_type
+        description: Airbnb room type.
+      - name: accommodates
+        description: Number of guests the listing can accommodate.
 
   - name: g_census_g01
-    description: "Gold Reference: Census Demographics (Population by Age/Sex)"
+    description: Gold reference table for Census G01 population age and sex characteristics by LGA.
     columns:
       - name: lga_code
+        description: LGA code used to join Census data to LGA dimensions.
         tests: [unique, not_null]
+      - name: total_population_person
+        description: Total persons in the Census LGA.
 
   - name: g_census_g02
-    description: "Gold Reference: Census Medians (Income, Rent, Mortgage)"
+    description: Gold reference table for Census G02 medians and averages by LGA.
     columns:
       - name: lga_code
+        description: LGA code used to join Census data to LGA dimensions.
         tests: [unique, not_null]
+      - name: median_age
+        description: Median age of persons in the LGA.
+      - name: median_mortgage_repay_monthly
+        description: Median monthly mortgage repayment in the LGA.
+      - name: median_weekly_rent
+        description: Median weekly rent in the LGA.
+      - name: avg_household_size
+        description: Average household size in the LGA.
 
-  # --- Data Marts ---
   - name: dm_host_neighbourhood
-    description: "Mart: Host LGA performance metrics"
-  
-  - name: dm_listing_neighbourhood
-    description: "Mart: Listing Neighbourhood performance metrics"
-    
-  - name: dm_property_type
-    description: "Mart: Property Type performance metrics"
+    description: >
+      Datamart for host-neighbourhood LGA performance by month. Built from the
+      fact table joined to the SCD2-resolved host LGA dimension.
+    columns:
+      - name: host_neighbourhood_lga
+        description: Host neighbourhood mapped to an NSW LGA.
+        tests: [not_null]
+      - name: month_year
+        description: Reporting month.
+        tests: [not_null]
+      - name: distinct_hosts
+        description: Count of distinct hosts in the host LGA and month.
+      - name: estimated_revenue
+        description: Total estimated active-listing revenue for the host LGA and month.
+      - name: estimated_revenue_per_host
+        description: Estimated revenue divided by distinct hosts.
 
-  
+  - name: dm_listing_neighbourhood
+    description: >
+      Datamart for listing-neighbourhood performance by month. Contains active
+      listing rate, price distribution, host counts, superhost rate, stays, and
+      estimated revenue per active listing.
+    columns:
+      - name: listing_neighbourhood
+        description: Listing neighbourhood from the SCD2-resolved neighbourhood dimension.
+        tests: [not_null]
+      - name: month_year
+        description: Reporting month.
+        tests: [not_null]
+      - name: active_listings_rate
+        description: Active listings divided by total listings, multiplied by 100.
+      - name: median_price
+        description: Median price among active listings.
+      - name: avg_estimated_revenue_per_active_listing
+        description: Estimated revenue divided by active listing count.
+
+  - name: dm_property_type
+    description: >
+      Datamart for property configuration performance by month. Grain is
+      property_type, room_type, accommodates, and month_year.
+    columns:
+      - name: property_type
+        description: Airbnb property type.
+        tests: [not_null]
+      - name: room_type
+        description: Airbnb room type.
+        tests: [not_null]
+      - name: accommodates
+        description: Number of guests the listing can accommodate.
+      - name: month_year
+        description: Reporting month.
+        tests: [not_null]
+      - name: active_listings_rate
+        description: Active listings divided by total listings, multiplied by 100.
+      - name: avg_estimated_revenue_per_active_listing
+        description: Estimated revenue divided by active listing count.

@@ -21,6 +21,7 @@ dbt is responsible for:
 - dimension snapshots
 - Gold dimensions, facts, and marts
 - model tests and relationship checks
+- exposures that connect dbt models to downstream dashboards
 
 ## 7.2 Project Structure
 
@@ -63,6 +64,12 @@ The schemas are intentionally split:
 - `analytics_silver`: dbt Silver cleaned models
 - `silver`: dbt snapshot tables
 - `analytics_gold`: dbt Gold star schema and marts
+
+The project also defines a dbt exposure for the local Metabase dashboard in:
+
+```text
+dbt/models/exposures.yml
+```
 
 ## 7.4 SCD2 In dbt
 
