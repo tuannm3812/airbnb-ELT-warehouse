@@ -47,6 +47,8 @@ Core design choices:
 |   |-- 3_operations.md
 |   |-- 4_roadmap.md
 |   |-- 5_dashboard_guide.md
+|   |-- 6_task_coverage.md
+|   |-- 7_dbt_guide.md
 |   |-- architecture_flow.png
 |   `-- airbnb_census_warehouse_report.pdf
 |-- scripts/
@@ -68,6 +70,8 @@ For local setup and run instructions, see [docs/1_instructions.md](docs/1_instru
 For the project roadmap, see [docs/4_roadmap.md](docs/4_roadmap.md).
 
 For Metabase dashboard setup, see [docs/5_dashboard_guide.md](docs/5_dashboard_guide.md).
+
+For dbt model flow and SCD2 details, see [docs/7_dbt_guide.md](docs/7_dbt_guide.md).
 
 Prerequisites:
 

@@ -2,7 +2,7 @@
 
 This document captures everyday commands for running, checking, and resetting the local warehouse.
 
-## Start Services
+## 3.1 Start Services
 
 ```bash
 docker compose up -d
@@ -15,7 +15,7 @@ docker compose up airflow-init
 docker compose up -d
 ```
 
-## Check Services
+## 3.2 Check Services
 
 ```bash
 docker compose ps
@@ -27,25 +27,25 @@ Expected healthy services:
 - `airbnb-airflow-webserver`
 - `airbnb-airflow-scheduler`
 
-## Trigger Pipeline From CLI
+## 3.3 Trigger Pipeline From CLI
 
 ```bash
 docker compose exec -T airflow-scheduler airflow dags trigger airbnb_census_monthly_pipeline
 ```
 
-## Check Latest Pipeline Run
+## 3.4 Check Latest Pipeline Run
 
 ```bash
 docker compose exec -T airflow-scheduler airflow dags list-runs -d airbnb_census_monthly_pipeline --no-backfill
 ```
 
-## Run Smoke Test
+## 3.5 Run Smoke Test
 
 ```bash
 ./scripts/check_pipeline_outputs.sh
 ```
 
-## Run dbt Build
+## 3.6 Run dbt Build
 
 ```bash
 docker compose exec -T airflow-scheduler bash -lc "cd /opt/airflow/dbt && dbt build"
@@ -54,7 +54,7 @@ docker compose exec -T airflow-scheduler bash -lc "cd /opt/airflow/dbt && dbt bu
 Use this for model and test development. For full SCD2 validation, run the main
 Airflow DAG because snapshots depend on sequential monthly loads.
 
-## Query Warehouse
+## 3.7 Query Warehouse
 
 ```bash
 docker compose exec -T postgres psql -U postgres -d airbnb_census
@@ -74,7 +74,7 @@ union all
 select 'analytics_gold.g_dim_property', count(*) from analytics_gold.g_dim_property;
 ```
 
-## Restage Source Data
+## 3.8 Restage Source Data
 
 ```bash
 ./scripts/stage_at3_data.sh
@@ -82,13 +82,13 @@ select 'analytics_gold.g_dim_property', count(*) from analytics_gold.g_dim_prope
 
 This unpacks the source ZIPs into `data/` and removes macOS resource-fork files.
 
-## Stop Services
+## 3.9 Stop Services
 
 ```bash
 docker compose down
 ```
 
-## Full Reset
+## 3.10 Full Reset
 
 Use this when you want a fresh local database:
 
@@ -100,7 +100,7 @@ docker compose up -d
 docker compose exec -T airflow-scheduler airflow dags trigger airbnb_census_monthly_pipeline
 ```
 
-## Troubleshooting
+## 3.11 Troubleshooting
 
 If Airflow cannot see DAG changes:
 

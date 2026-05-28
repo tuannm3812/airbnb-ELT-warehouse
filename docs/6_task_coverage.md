@@ -2,7 +2,7 @@
 
 This document maps the original assignment tasks to the current repo state.
 
-## Environment Requirement
+## 6.1 Environment Requirement
 
 Original requirement:
 
@@ -23,7 +23,7 @@ Status:
 - Not a literal GCP deployment unless the project is deployed to Cloud Composer,
   Cloud SQL, and dbt Cloud.
 
-## Part 0: Datasets
+## 6.2 Part 0: Datasets
 
 Status: complete locally.
 
@@ -41,7 +41,7 @@ Expected staged files:
 - `data/mappings/NSW_LGA_CODE.csv`
 - `data/mappings/NSW_LGA_SUBURB.csv`
 
-## Part 1: Airflow Bronze Load
+## 6.3 Part 1: Airflow Bronze Load
 
 Status: complete locally.
 
@@ -57,7 +57,7 @@ files, and archives processed files.
 
 The local filesystem replaces the Cloud Composer storage bucket.
 
-## Part 2: dbt Warehouse
+## 6.4 Part 2: dbt Warehouse
 
 Status: complete.
 
@@ -98,7 +98,7 @@ SCD2 handling:
 - The fact table resolves SCD2 dimension surrogate keys by validity window.
 - Datamarts join through those resolved dimension keys.
 
-## Part 3: Remaining Monthly Loads
+## 6.5 Part 3: Remaining Monthly Loads
 
 Status: complete locally.
 
@@ -107,7 +107,7 @@ each monthly append, it runs dbt before archiving the file.
 
 This preserves snapshot order and SCD2 correctness.
 
-## Part 4: Ad-Hoc Analysis
+## 6.6 Part 4: Ad-Hoc Analysis
 
 Status: complete.
 
@@ -125,7 +125,7 @@ The queries run against the populated local warehouse and cover:
 - multi-listing host LGA concentration
 - single-listing host mortgage repayment coverage
 
-## Current Verification
+## 6.7 Current Verification
 
 Latest local checks:
 
@@ -134,7 +134,7 @@ Latest local checks:
 - Gold datamarts return rows
 - analysis SQL runs end to end
 
-## Remaining Only If Submitting As Original GCP Assignment
+## 6.8 Remaining Only If Submitting As Original GCP Assignment
 
 These are not needed for the local personal-project version, but would be
 required if the marker expects the exact original environment:

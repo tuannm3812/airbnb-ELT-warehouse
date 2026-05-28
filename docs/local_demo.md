@@ -2,14 +2,14 @@
 
 This guide shows how to run the full Airbnb + Census ELT warehouse locally with Docker, Airflow, PostgreSQL, and dbt Core.
 
-## What This Demo Proves
+## 1. What This Demo Proves
 
 - Raw CSV files can be staged locally without Google Cloud Storage.
 - Airflow can bootstrap Bronze, process monthly files, and archive inputs.
 - dbt Core can build Bronze, Silver, Gold, snapshots, tests, and marts.
 - PostgreSQL contains usable analytics outputs after the run.
 
-## 1. Start Docker Stack
+## 2. Start Docker Stack
 
 ```bash
 docker compose up airflow-init
@@ -29,7 +29,7 @@ username: admin
 password: admin
 ```
 
-## 2. Stage Source Files
+## 3. Stage Source Files
 
 Pass the folder that contains the source ZIP files:
 
@@ -53,7 +53,7 @@ Expected files:
 - `data/mappings/NSW_LGA_CODE.csv`
 - `data/mappings/NSW_LGA_SUBURB.csv`
 
-## 3. Run Airflow Pipeline
+## 4. Run Airflow Pipeline
 
 In Airflow, trigger:
 
@@ -69,7 +69,7 @@ DBT_RUN_MODE=local
 
 That means Airflow runs `dbt build` inside the Airflow container after the baseline load and after each monthly load.
 
-## 4. Check Pipeline Outputs
+## 5. Check Pipeline Outputs
 
 Run:
 
@@ -91,7 +91,7 @@ The smoke test checks:
 - `analytics_gold.g_fact_listing_monthly` has rows
 - key Gold dimensions are populated
 
-## 5. Run dbt Directly
+## 6. Run dbt Directly
 
 Use this when changing dbt models or tests:
 
@@ -101,7 +101,7 @@ docker compose exec -T airflow-scheduler bash -lc "cd /opt/airflow/dbt && dbt bu
 
 Use Airflow for full orchestration testing. Use direct dbt builds for faster model-layer development.
 
-## 6. Stop The Stack
+## 7. Stop The Stack
 
 ```bash
 docker compose down

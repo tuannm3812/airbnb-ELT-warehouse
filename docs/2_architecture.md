@@ -2,14 +2,14 @@
 
 This project implements a local ELT warehouse for analysing Sydney Airbnb listings alongside ABS Census and NSW LGA reference data.
 
-## System Components
+## 2.1 System Components
 
 - Airflow orchestrates loading, transformation, and archiving.
 - PostgreSQL stores raw, cleaned, dimensional, and mart tables.
 - dbt builds the transformation layer, tests, and snapshots.
 - Docker Compose provides a reproducible local development environment.
 
-## Data Flow
+## 2.2 Data Flow
 
 ```text
 CSV ZIP files
@@ -23,7 +23,7 @@ CSV ZIP files
   -> SQL analysis queries / BI layer
 ```
 
-## Medallion Layers
+## 2.3 Medallion Layers
 
 Bronze:
 
@@ -42,7 +42,7 @@ Gold:
 - Star schema and reporting marts.
 - Includes facts, dimensions, Census reference tables, and business-facing aggregate views.
 
-## Orchestration Design
+## 2.4 Orchestration Design
 
 The main Airflow DAG is:
 
@@ -61,7 +61,7 @@ It performs:
 
 Monthly files are discovered at task runtime so archiving files does not mutate the DAG graph while a run is active.
 
-## dbt Design
+## 2.5 dbt Design
 
 The dbt project uses:
 
@@ -72,15 +72,30 @@ The dbt project uses:
 - Gold dimensions and monthly fact table
 - Gold marts for property, listing-neighbourhood, and host-neighbourhood analysis
 
-## SCD2 Design
+## 2.6 SCD2 Design
+
+SCD2 means the warehouse keeps historical versions of a dimension row. Instead
+of overwriting a host, property, neighbourhood, or LGA record, dbt snapshots
+create validity ranges using:
+
+- `dbt_valid_from`
+- `dbt_valid_to`
 
 Dimension snapshots are created only for entities that become Gold dimensions:
-host, property, listing neighbourhood, and LGA.
+
+- host
+- property
+- listing neighbourhood
+- LGA
 
 The listing-derived dimensions use `updated_at`, derived from `scraped_date`, as
 the snapshot timestamp. The LGA reference dimension uses a stable source
 effective timestamp because the NSW LGA mapping is static reference data in this
 project.
+
+The project does not snapshot the fact table. The fact table is rebuilt from the
+cleaned listing observations and resolves dimension keys from the snapshot
+history.
 
 The Gold fact table stores only business keys, resolved dimension surrogate
 keys, and metrics. It resolves each dimension key with a validity-window join:
@@ -94,7 +109,37 @@ The Gold marts join facts to dimensions through those SCD2-resolved surrogate
 keys, so metrics are reported using the dimension values valid for the fact
 month rather than blindly using the latest dimension version.
 
-## Local Runtime
+## 2.7 Why Sequential dbt Runs Matter
+
+dbt snapshots record what dbt can observe at run time. For this project, the
+Airflow DAG intentionally loads one monthly file, runs dbt, loads the next
+monthly file, and runs dbt again.
+
+That sequence lets snapshots capture how dimension values changed month by
+month. If every monthly file is loaded first and dbt runs only once at the end,
+dbt can build the final models but cannot recreate intermediate snapshot states
+that were never observed.
+
+## 2.8 Other SCD Patterns
+
+This project currently uses SCD2 because analytics need to report historical
+facts with the dimension values that were valid at the time.
+
+Other SCD patterns could also be applied:
+
+- SCD0: keep immutable attributes that should never change, such as a stable source identifier.
+- SCD1: overwrite corrections where history is not useful, such as typo cleanup in display names.
+- SCD2: keep full row history with validity windows, as used by the current Gold dimensions.
+- SCD3: keep limited previous values in extra columns, useful for small before/after comparisons.
+- SCD6: combine SCD1, SCD2, and SCD3 when both current and historical attributes are needed in one dimension.
+
+Recommended extension:
+
+- keep SCD2 for host, property, neighbourhood, and LGA dimensions
+- use SCD1-style cleanup in Silver for standardised text fields
+- consider SCD0 for source IDs and stable Census reference attributes
+
+## 2.9 Local Runtime
 
 Docker Compose starts:
 
@@ -103,7 +148,7 @@ Docker Compose starts:
 - `airflow-scheduler`: DAG scheduler and local dbt runner
 - `airflow-init`: one-time metadata setup and local admin user creation
 
-## Current Tradeoffs
+## 2.10 Current Tradeoffs
 
 - Local runs prioritize reproducibility over production-grade security.
 - Raw CSV files are staged locally and ignored by Git.

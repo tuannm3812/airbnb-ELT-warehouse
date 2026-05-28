@@ -2,7 +2,7 @@
 
 This roadmap turns the project from a working local warehouse into a stronger personal data engineering portfolio project.
 
-## Current State
+## 4.1 Current State
 
 Completed:
 
@@ -14,9 +14,9 @@ Completed:
 - Smoke test for latest run and key warehouse outputs.
 - Numbered project documentation.
 
-## Next Priorities
+## 4.2 Next Priorities
 
-### 1. Build The BI Demo
+### 4.2.1 Build The BI Demo
 
 Goal: make the warehouse useful beyond SQL queries.
 
@@ -26,7 +26,7 @@ Recommended next step:
 - Save dashboard screenshots under `docs/assets/`.
 - Add the strongest screenshots to the README and project summary.
 
-### 2. Make The DAG More Observable
+### 4.2.2 Make The DAG More Observable
 
 Goal: show each monthly load and dbt run clearly in Airflow.
 
@@ -40,7 +40,7 @@ Recommended next step:
 - Add a run summary table or task log summary first.
 - Refactor to dynamic task mapping after the current baseline is fully documented.
 
-### 3. Improve The BI Layer
+### 4.2.3 Improve The BI Layer
 
 Goal: turn the first dashboard into a stronger analytics product.
 
@@ -54,7 +54,7 @@ Recommended next step:
 
 - Keep Metabase first because it is quick to wire to PostgreSQL and strong for portfolio screenshots.
 
-### 4. Add Data Quality Contracts
+### 4.2.4 Add Data Quality Contracts
 
 Goal: make quality expectations explicit.
 
@@ -65,7 +65,7 @@ Ideas:
 - Add monthly row count checks.
 - Add source freshness checks where a source date is available.
 
-### 5. Add CI
+### 4.2.5 Add CI
 
 Goal: verify the project on every push.
 
@@ -76,7 +76,7 @@ Ideas:
 - Python syntax check for DAGs
 - optional Docker Compose smoke test on selected branches
 
-### 6. Publish Portfolio Story
+### 4.2.6 Publish Portfolio Story
 
 Goal: make the project easy to understand by recruiters or collaborators.
 
@@ -87,7 +87,7 @@ Deliverables:
 - final `PROJECT_SUMMARY.md`
 - short LinkedIn/GitHub project writeup
 
-## Suggested Immediate Sequence
+## 4.3 Suggested Immediate Sequence
 
 1. Build the first Metabase dashboard over `analytics_gold`.
 2. Add screenshots under `docs/assets/`.

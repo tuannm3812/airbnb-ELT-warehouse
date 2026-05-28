@@ -2,13 +2,13 @@
 
 This is the primary local run guide for the Airbnb + Census ELT warehouse.
 
-## Prerequisites
+## 1.1 Prerequisites
 
 - Docker Desktop or Docker Engine with Compose.
 - Source ZIP files for Airbnb listings, Census LGA, and NSW LGA mappings.
 - A shell from the repository root.
 
-## Start The Stack
+## 1.2 Start The Stack
 
 ```bash
 cp .env.example .env
@@ -38,7 +38,7 @@ password: admin
 
 Metabase asks you to create a local admin account on first launch.
 
-## Stage Source Data
+## 1.3 Stage Source Data
 
 Pass the folder that contains the source ZIP files:
 
@@ -62,7 +62,7 @@ Expected input layout:
 - `data/mappings/NSW_LGA_CODE.csv`
 - `data/mappings/NSW_LGA_SUBURB.csv`
 
-## Run The Pipeline
+## 1.4 Run The Pipeline
 
 In Airflow, trigger:
 
@@ -78,7 +78,7 @@ DBT_RUN_MODE=local
 
 This means Airflow executes `dbt build` inside the Airflow container after the baseline load and after each monthly file is appended.
 
-## Verify Outputs
+## 1.5 Verify Outputs
 
 ```bash
 ./scripts/check_pipeline_outputs.sh
@@ -90,7 +90,7 @@ Expected result:
 Smoke test passed.
 ```
 
-## Run dbt Directly
+## 1.6 Run dbt Directly
 
 Use this while changing dbt models or tests:
 
@@ -100,7 +100,7 @@ docker compose exec -T airflow-scheduler bash -lc "cd /opt/airflow/dbt && dbt bu
 
 Use Airflow for full orchestration testing. Use direct dbt builds for faster transformation-layer development.
 
-## SCD2 Snapshot Notes
+## 1.7 SCD2 Snapshot Notes
 
 Use the Airflow DAG for end-to-end SCD2 testing. The DAG loads the May 2020
 baseline, runs dbt, then appends each later monthly file and runs dbt again.
@@ -115,7 +115,7 @@ If you manually rebuild from an already fully loaded Bronze table, dbt can
 validate models and tests, but it cannot reconstruct snapshot history that was
 never observed through sequential snapshot runs.
 
-## Explore Dashboards
+## 1.8 Explore Dashboards
 
 After the pipeline and dbt build complete, connect Metabase to the local
 warehouse and build dashboards from the Gold marts:
@@ -131,7 +131,7 @@ Schema: analytics_gold
 
 See [5_dashboard_guide.md](5_dashboard_guide.md) for suggested dashboard cards.
 
-## Stop The Stack
+## 1.9 Stop The Stack
 
 ```bash
 docker compose down
