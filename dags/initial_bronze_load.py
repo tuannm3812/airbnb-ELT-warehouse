@@ -1,27 +1,21 @@
-# ============================================================================
-# DAG: airbnb_census_initial_bronze_load
-# Purpose: Load initial raw Airbnb (05_2020), ABS Census (G01/G02),
-#          NSW LGA code, and LGA-to-suburb mapping into Postgres Bronze.
-# ============================================================================
+"""Initial Bronze load DAG for the Airbnb and Census warehouse.
 
-# Standard library
+This DAG loads the baseline May 2020 Airbnb extract, ABS Census G01/G02 files,
+NSW LGA codes, and LGA-to-suburb mapping data into the Bronze schema.
+"""
+
 import csv
 import os
 import re
 import shutil
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Iterable, List, Optional, Tuple
 
-# Third-party
 from airflow import DAG
-from airflow.operators.python import PythonOperator
 from airflow.models import Variable
+from airflow.operators.python import PythonOperator
 from airflow.providers.postgres.hooks.postgres import PostgresHook
 from psycopg2.errors import DuplicateSchema, UniqueViolation
-
-# ================================
-# Config / Constants
-# ================================
 
 AIRFLOW_DATA: str = os.environ.get(
     "AIRFLOW_DATA_PATH",
@@ -34,28 +28,23 @@ SQL_FILE_PATH: str = os.environ.get(
     Variable.get("BRONZE_INIT_SQL_PATH", "sql/init_bronze_schema.sql"),
 )
 
-# Folders
 AIRBNB_DIR: str = os.path.join(AIRFLOW_DATA, "airbnb")
 CENSUS_G01_DIR: str = os.path.join(AIRFLOW_DATA, "census", "G01")
 CENSUS_G02_DIR: str = os.path.join(AIRFLOW_DATA, "census", "G02")
 MAPPINGS_DIR: str = os.path.join(AIRFLOW_DATA, "mappings")
-# Optimization: Use local container disk for temp ops, not GCS
 TMP_DIR: str = "/tmp"
 
-# Files
 AIRBNB_052020_PATH: str = os.path.join(AIRBNB_DIR, "05_2020.csv")
 G01_PATH: str = os.path.join(CENSUS_G01_DIR, "2016Census_G01_NSW_LGA.csv")
 G02_PATH: str = os.path.join(CENSUS_G02_DIR, "2016Census_G02_NSW_LGA.csv")
 LGA_CODE_PATH: str = os.path.join(MAPPINGS_DIR, "NSW_LGA_CODE.csv")
 LGA_SUBURB_PATH: str = os.path.join(MAPPINGS_DIR, "NSW_LGA_SUBURB.csv")
 
-# Archives
 AIRBNB_ARCHIVE_DIR: str = os.path.join(AIRBNB_DIR, "archive")
 G01_ARCHIVE_DIR: str = os.path.join(CENSUS_G01_DIR, "archive")
 G02_ARCHIVE_DIR: str = os.path.join(CENSUS_G02_DIR, "archive")
 MAPPINGS_ARCHIVE_DIR: str = os.path.join(MAPPINGS_DIR, "archive")
 
-# Fixed Column Definitions (Tuples for immutability)
 AIRBNB_COLS: Tuple[str, ...] = (
     "listing_id",
     "scrape_id",
@@ -85,13 +74,9 @@ LGA_CODE_COLS: Tuple[str, ...] = ("lga_code", "lga_name")
 LGA_SUBURB_COLS: Tuple[str, ...] = ("lga_name", "suburb_name")
 
 
-# ================================
-# Helper Functions
-# ================================
-
-def _ts_suffix() -> str:
+def timestamp_suffix() -> str:
     """Generate a timestamp suffix for archiving files."""
-    return datetime.utcnow().strftime("%Y%m%d-%H%M%S")
+    return datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
 
 
 def sanitize_identifier(name: str) -> str:
@@ -275,11 +260,17 @@ def archive_input(file_path: str, archive_dir: str) -> None:
     os.makedirs(archive_dir, exist_ok=True)
     base = os.path.basename(file_path)
     stem, ext = os.path.splitext(base)
-    dst = os.path.join(archive_dir, f"{stem}_{_ts_suffix()}{ext}")
+    dst = os.path.join(archive_dir, f"{stem}_{timestamp_suffix()}{ext}")
     shutil.move(file_path, dst)
 
 
 def ensure_schema(pg_hook: PostgresHook, schema: str) -> None:
+    """Create the target schema if needed.
+
+    Args:
+        pg_hook (PostgresHook): Active Postgres connection.
+        schema (str): Schema name.
+    """
     try:
         pg_hook.run(f"CREATE SCHEMA IF NOT EXISTS {schema};")
     except (DuplicateSchema, UniqueViolation):
@@ -287,6 +278,14 @@ def ensure_schema(pg_hook: PostgresHook, schema: str) -> None:
 
 
 def run_sql_file(file_path: str) -> None:
+    """Run a SQL file against the configured Postgres connection.
+
+    Args:
+        file_path (str): SQL file path.
+
+    Raises:
+        FileNotFoundError: If the SQL file is missing.
+    """
     if not os.path.exists(file_path):
         raise FileNotFoundError(f"Missing SQL file: {file_path}")
     pg_hook = PostgresHook(postgres_conn_id=PG_CONN_ID)
@@ -349,10 +348,6 @@ def load_with_autocreate(
     if archive_dir and os.path.exists(file_path):
         archive_input(file_path, archive_dir)
 
-
-# ================================
-# DAG Definition
-# ================================
 
 with DAG(
     dag_id="airbnb_census_initial_bronze_load",

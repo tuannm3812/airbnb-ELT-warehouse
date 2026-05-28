@@ -10,6 +10,13 @@
     )
 }}
 
-SELECT * FROM {{ ref('s_dim_host') }}
+SELECT
+    host_id,
+    host_name,
+    host_since,
+    host_is_superhost,
+    host_neighbourhood,
+    updated_at
+FROM {{ ref('s_dim_host') }}
 
 {% endsnapshot %}

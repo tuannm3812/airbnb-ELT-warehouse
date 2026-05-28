@@ -10,6 +10,10 @@
     )
 }}
 
-SELECT * FROM {{ ref('s_dim_neighbourhood') }}
+SELECT
+    neigh_nk,
+    listing_neighbourhood,
+    updated_at
+FROM {{ ref('s_dim_neighbourhood') }}
 
 {% endsnapshot %}

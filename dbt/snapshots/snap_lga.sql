@@ -10,6 +10,10 @@
     )
 }}
 
-SELECT * FROM {{ ref('s_dim_lga') }}
+SELECT
+    lga_code,
+    lga_name,
+    updated_at
+FROM {{ ref('s_dim_lga') }}
 
 {% endsnapshot %}

@@ -10,6 +10,12 @@
     )
 }}
 
-SELECT * FROM {{ ref('s_dim_property') }}
+SELECT
+    property_nk,
+    property_type,
+    room_type,
+    accommodates,
+    updated_at
+FROM {{ ref('s_dim_property') }}
 
 {% endsnapshot %}

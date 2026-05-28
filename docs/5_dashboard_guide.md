@@ -94,7 +94,33 @@ Group by: fact_month
 Visualization: line chart
 ```
 
-## 5.5 Portfolio Screenshots
+## 5.5 Metabase Card Plan
+
+Use this table as the build list when you return to the dashboard.
+
+| Card | Source table | Filter | Summarize / group by | Visualization |
+| --- | --- | --- | --- | --- |
+| KPI: active listings | `g_fact_listing_monthly` | `active_flag = true` and optional `fact_month` | Count distinct `listing_id` | Number |
+| KPI: estimated revenue | `g_fact_listing_monthly` | optional `fact_month` | Sum `revenue_active` | Number |
+| Active listings trend | `g_fact_listing_monthly` | `active_flag = true` | Count distinct `listing_id` by `fact_month` | Line |
+| Top neighbourhood revenue | `dm_listing_neighbourhood` | latest or selected `month_year` | Average `avg_estimated_revenue_per_active_listing` by `listing_neighbourhood` | Bar |
+| Neighbourhood median price | `dm_listing_neighbourhood` | latest or selected `month_year` | Average `median_price` by `listing_neighbourhood` | Bar |
+| Superhost rate | `dm_listing_neighbourhood` | latest or selected `month_year` | Average `superhost_rate` by `listing_neighbourhood` | Bar |
+| Revenue per host LGA | `dm_host_neighbourhood` | optional `month_year` | Average `estimated_revenue_per_host` by `host_neighbourhood_lga` | Bar |
+| Property type performance | `dm_property_type` | optional `month_year` | Average `avg_estimated_revenue_per_active_listing` by `property_type`, `room_type` | Grouped bar |
+| Occupancy proxy by property | `dm_property_type` | optional `month_year` | Sum `total_number_of_stays` by `property_type`, `room_type`, `accommodates` | Bar |
+| Raw monthly fact table | `g_fact_listing_monthly` | optional `fact_month`, `active_flag` | No summarize | Table |
+
+Recommended dashboard filters:
+
+- `month_year` or `fact_month`
+- `listing_neighbourhood`
+- `host_neighbourhood_lga`
+- `property_type`
+- `room_type`
+- `accommodates`
+
+## 5.6 Portfolio Screenshots
 
 After the first dashboard is built:
 
@@ -104,7 +130,7 @@ After the first dashboard is built:
 4. Save screenshots under `docs/assets/screenshots/`.
 5. Reference them from the README or `PROJECT_SUMMARY.md`.
 
-## 5.6 Reset Metabase
+## 5.7 Reset Metabase
 
 Metabase stores its application data in the local PostgreSQL `metabase`
 database. To fully reset local BI state, remove the Compose volumes:
