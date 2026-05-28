@@ -25,7 +25,7 @@ win AS (
     SELECT 
         (MAX(fact_month) - (INTERVAL '1 month' * ((SELECT window_months FROM params) - 1)))::date AS start_m,
         MAX(fact_month) AS end_m
-    FROM gold.g_fact_listing_monthly
+    FROM analytics_gold.g_fact_listing_monthly
 ),
 -- Aggregate Revenue per LGA
 lga_perf AS (
@@ -34,7 +34,7 @@ lga_perf AS (
         SUM(f.revenue_active) AS rev_sum,
         COUNT(DISTINCT CASE WHEN f.active_flag THEN f.listing_id END) AS active_listings,
         SUM(f.revenue_active) / NULLIF(COUNT(DISTINCT CASE WHEN f.active_flag THEN f.listing_id END), 0) AS rev_per_active
-    FROM gold.g_fact_listing_monthly f
+    FROM analytics_gold.g_fact_listing_monthly f
     JOIN win w ON f.fact_month BETWEEN w.start_m AND w.end_m
     WHERE f.listing_lga_dim_id != '-1' -- Exclude unknown LGAs
     GROUP BY 1
@@ -46,7 +46,7 @@ lga_details AS (
         l.lga_code, 
         l.lga_name
     FROM lga_perf p
-    JOIN gold.g_dim_lga l ON l.lga_dim_id = p.listing_lga_dim_id
+    JOIN analytics_gold.g_dim_lga l ON l.lga_dim_id = p.listing_lga_dim_id
 ),
 -- Rank them
 ranked AS (
@@ -63,23 +63,23 @@ pick AS (
     UNION ALL
     SELECT * FROM ranked WHERE rnk_asc <= 3
 ),
--- Census G01: Age buckets
+-- Census G01: Age buckets from the Gold reference model
 g01 AS (
     SELECT 
-        NULLIF(REGEXP_REPLACE(lga_code_2016, '[^0-9]', '', 'g'), '')::int AS lga_code,
-        (age_0_4_yr_p::numeric + age_5_14_yr_p::numeric + age_15_19_yr_p::numeric) / NULLIF(tot_p_p::numeric, 0) AS pct_0_19,
-        (age_20_24_yr_p::numeric + age_25_34_yr_p::numeric + age_35_44_yr_p::numeric) / NULLIF(tot_p_p::numeric, 0) AS pct_20_44,
-        (age_45_54_yr_p::numeric + age_55_64_yr_p::numeric) / NULLIF(tot_p_p::numeric, 0) AS pct_45_64,
-        (age_65_74_yr_p::numeric + age_75_84_yr_p::numeric + age_85ov_p::numeric) / NULLIF(tot_p_p::numeric, 0) AS pct_65_plus
-    FROM bronze.census_g01_raw
+        NULLIF(REGEXP_REPLACE(lga_code::text, '[^0-9]', '', 'g'), '')::int AS lga_code,
+        (age_0_4_yr_p::numeric + age_5_14_yr_p::numeric + age_15_19_yr_p::numeric) / NULLIF(total_population_person::numeric, 0) AS pct_0_19,
+        (age_20_24_yr_p::numeric + age_25_34_yr_p::numeric + age_35_44_yr_p::numeric) / NULLIF(total_population_person::numeric, 0) AS pct_20_44,
+        (age_45_54_yr_p::numeric + age_55_64_yr_p::numeric) / NULLIF(total_population_person::numeric, 0) AS pct_45_64,
+        (age_65_74_yr_p::numeric + age_75_84_yr_p::numeric + age_85ov_p::numeric) / NULLIF(total_population_person::numeric, 0) AS pct_65_plus
+    FROM analytics_gold.g_census_g01
 ),
--- Census G02: Medians
+-- Census G02: Medians from the Gold reference model
 g02 AS (
     SELECT 
-        NULLIF(REGEXP_REPLACE(lga_code_2016, '[^0-9]', '', 'g'), '')::int AS lga_code,
-        median_age_persons::numeric AS median_age,
-        average_household_size::numeric AS avg_household_size
-    FROM bronze.census_g02_raw
+        NULLIF(REGEXP_REPLACE(lga_code::text, '[^0-9]', '', 'g'), '')::int AS lga_code,
+        median_age::numeric AS median_age,
+        avg_household_size::numeric AS avg_household_size
+    FROM analytics_gold.g_census_g02
 )
 
 SELECT 
@@ -94,8 +94,8 @@ SELECT
     g02.median_age,
     g02.avg_household_size
 FROM pick p
-LEFT JOIN g01 ON g01.lga_code = p.lga_code
-LEFT JOIN g02 ON g02.lga_code = p.lga_code
+LEFT JOIN g01 ON g01.lga_code = NULLIF(REGEXP_REPLACE(p.lga_code::text, '[^0-9]', '', 'g'), '')::int
+LEFT JOIN g02 ON g02.lga_code = NULLIF(REGEXP_REPLACE(p.lga_code::text, '[^0-9]', '', 'g'), '')::int
 ORDER BY rnk_desc;
 
 
@@ -106,8 +106,8 @@ ORDER BY rnk_desc;
          Revenue per Active Listing (Neighbourhood level).
    Strategy:
      1. Calc Revenue per Active Listing by Neighbourhood.
-     2. Map Neighbourhood -> LGA using Bridge.
-     3. Join LGA -> Census Median Age.
+     2. Use the fact table's SCD2-resolved listing LGA key.
+     3. Join LGA -> Gold Census Median Age.
      4. Compute CORR().
    ============================================================================ */
 
@@ -116,47 +116,34 @@ win AS (
     SELECT 
         (MAX(fact_month) - (INTERVAL '1 month' * ((SELECT window_months FROM params) - 1)))::date AS start_m,
         MAX(fact_month) AS end_m
-    FROM gold.g_fact_listing_monthly
+    FROM analytics_gold.g_fact_listing_monthly
 ),
 neigh_stats AS (
     SELECT 
         n.listing_neighbourhood,
+        l.lga_code,
         SUM(f.revenue_active) / NULLIF(COUNT(DISTINCT CASE WHEN f.active_flag THEN f.listing_id END), 0) AS rev_per_active
-    FROM gold.g_fact_listing_monthly f
-    JOIN gold.g_dim_neighbourhood n ON f.neighbourhood_dim_id = n.neighbourhood_dim_id
+    FROM analytics_gold.g_fact_listing_monthly f
+    JOIN analytics_gold.g_dim_neighbourhood n ON f.neighbourhood_dim_id = n.neighbourhood_dim_id
+    JOIN analytics_gold.g_dim_lga l ON f.listing_lga_dim_id = l.lga_dim_id
     JOIN win w ON f.fact_month BETWEEN w.start_m AND w.end_m
-    GROUP BY 1
+    WHERE f.listing_lga_dim_id != '-1'
+    GROUP BY 1, 2
     HAVING SUM(f.revenue_active) IS NOT NULL
-),
--- Map Neighbourhoods to LGAs using the Silver Bridge
-neigh_lga AS (
-    SELECT 
-        ns.listing_neighbourhood,
-        ns.rev_per_active,
-        -- Normalize match key
-        UPPER(REGEXP_REPLACE(ns.listing_neighbourhood, '[^A-Z0-9]', '', 'g')) AS join_key
-    FROM neigh_stats ns
-),
-bridge AS (
-    SELECT 
-        UPPER(REGEXP_REPLACE(suburb_name, '[^A-Z0-9]', '', 'g')) AS join_key,
-        lga_code::int AS lga_code
-    FROM silver.s_bridge_lga_suburb
 ),
 census AS (
     SELECT 
-        NULLIF(REGEXP_REPLACE(lga_code_2016, '[^0-9]', '', 'g'), '')::int AS lga_code,
-        median_age_persons::numeric AS median_age
-    FROM bronze.census_g02_raw
+        NULLIF(REGEXP_REPLACE(lga_code::text, '[^0-9]', '', 'g'), '')::int AS lga_code,
+        median_age::numeric AS median_age
+    FROM analytics_gold.g_census_g02
 ),
 dataset AS (
     SELECT 
-        nl.listing_neighbourhood,
-        nl.rev_per_active,
+        ns.listing_neighbourhood,
+        ns.rev_per_active,
         c.median_age
-    FROM neigh_lga nl
-    JOIN bridge b ON nl.join_key = b.join_key
-    JOIN census c ON b.lga_code = c.lga_code
+    FROM neigh_stats ns
+    JOIN census c ON NULLIF(REGEXP_REPLACE(ns.lga_code::text, '[^0-9]', '', 'g'), '')::int = c.lga_code
 )
 -- Output Correlation
 SELECT 
@@ -177,15 +164,15 @@ win AS (
     SELECT 
         (MAX(fact_month) - (INTERVAL '1 month' * ((SELECT window_months FROM params) - 1)))::date AS start_m,
         MAX(fact_month) AS end_m
-    FROM gold.g_fact_listing_monthly
+    FROM analytics_gold.g_fact_listing_monthly
 ),
 -- 1. Identify Top 5 Neighbourhoods by Rev/Active
 top5_neigh AS (
     SELECT 
         n.listing_neighbourhood,
         SUM(f.revenue_active) / NULLIF(COUNT(DISTINCT CASE WHEN f.active_flag THEN f.listing_id END), 0) AS rev_per_active
-    FROM gold.g_fact_listing_monthly f
-    JOIN gold.g_dim_neighbourhood n ON f.neighbourhood_dim_id = n.neighbourhood_dim_id
+    FROM analytics_gold.g_fact_listing_monthly f
+    JOIN analytics_gold.g_dim_neighbourhood n ON f.neighbourhood_dim_id = n.neighbourhood_dim_id
     JOIN win w ON f.fact_month BETWEEN w.start_m AND w.end_m
     GROUP BY 1
     ORDER BY rev_per_active DESC NULLS LAST
@@ -199,9 +186,9 @@ configs AS (
         p.room_type,
         p.accommodates,
         SUM(f.total_stays_active) AS total_stays
-    FROM gold.g_fact_listing_monthly f
-    JOIN gold.g_dim_neighbourhood n ON f.neighbourhood_dim_id = n.neighbourhood_dim_id
-    JOIN gold.g_dim_property p ON f.property_dim_id = p.property_dim_id
+    FROM analytics_gold.g_fact_listing_monthly f
+    JOIN analytics_gold.g_dim_neighbourhood n ON f.neighbourhood_dim_id = n.neighbourhood_dim_id
+    JOIN analytics_gold.g_dim_property p ON f.property_dim_id = p.property_dim_id
     JOIN win w ON f.fact_month BETWEEN w.start_m AND w.end_m
     WHERE n.listing_neighbourhood IN (SELECT listing_neighbourhood FROM top5_neigh)
     GROUP BY 1, 2, 3, 4
@@ -236,7 +223,7 @@ win AS (
     SELECT 
         (MAX(fact_month) - (INTERVAL '1 month' * ((SELECT window_months FROM params) - 1)))::date AS start_m,
         MAX(fact_month) AS end_m
-    FROM gold.g_fact_listing_monthly
+    FROM analytics_gold.g_fact_listing_monthly
 ),
 -- Get active listings and their locations per host
 host_activity AS (
@@ -244,7 +231,7 @@ host_activity AS (
         f.host_dim_id,
         f.listing_id,
         f.listing_lga_dim_id -- CRITICAL: Use Listing Location
-    FROM gold.g_fact_listing_monthly f
+    FROM analytics_gold.g_fact_listing_monthly f
     JOIN win w ON f.fact_month BETWEEN w.start_m AND w.end_m
     WHERE f.active_flag = TRUE
       AND f.listing_lga_dim_id != '-1' -- Ignore unknown locations
@@ -283,14 +270,14 @@ win AS (
     SELECT 
         (MAX(fact_month) - (INTERVAL '1 month' * ((SELECT window_months FROM params) - 1)))::date AS start_m,
         MAX(fact_month) AS end_m
-    FROM gold.g_fact_listing_monthly
+    FROM analytics_gold.g_fact_listing_monthly
 ),
 -- 1. Get Hosts with exactly 1 active listing
 host_counts AS (
     SELECT 
         f.host_dim_id,
         COUNT(DISTINCT f.listing_id) as listing_count
-    FROM gold.g_fact_listing_monthly f
+    FROM analytics_gold.g_fact_listing_monthly f
     JOIN win w ON f.fact_month BETWEEN w.start_m AND w.end_m
     WHERE f.active_flag = TRUE
     GROUP BY 1
@@ -303,18 +290,18 @@ single_listing_revenue AS (
         MAX(l.lga_code) as lga_code, -- Use Listing LGA
         MAX(l.lga_name) as lga_name,
         SUM(f.revenue_active) as annual_revenue
-    FROM gold.g_fact_listing_monthly f
+    FROM analytics_gold.g_fact_listing_monthly f
     JOIN host_counts hc ON f.host_dim_id = hc.host_dim_id
-    JOIN gold.g_dim_lga l ON f.listing_lga_dim_id = l.lga_dim_id -- CRITICAL: Listing Location
+    JOIN analytics_gold.g_dim_lga l ON f.listing_lga_dim_id = l.lga_dim_id -- CRITICAL: Listing Location
     JOIN win w ON f.fact_month BETWEEN w.start_m AND w.end_m
     GROUP BY 1
 ),
 -- 3. Get Annualized Mortgage
 mortgage AS (
     SELECT 
-        NULLIF(REGEXP_REPLACE(lga_code_2016, '[^0-9]', '', 'g'), '')::int AS lga_code,
+        NULLIF(REGEXP_REPLACE(lga_code::text, '[^0-9]', '', 'g'), '')::int AS lga_code,
         median_mortgage_repay_monthly::numeric * 12 AS annual_mortgage
-    FROM bronze.census_g02_raw
+    FROM analytics_gold.g_census_g02
 )
 -- 4. Compare and Aggregate by LGA
 SELECT 
@@ -323,6 +310,6 @@ SELECT
     SUM(CASE WHEN r.annual_revenue >= m.annual_mortgage THEN 1 ELSE 0 END) AS hosts_covering_mortgage,
     ROUND(SUM(CASE WHEN r.annual_revenue >= m.annual_mortgage THEN 1 ELSE 0 END) * 100.0 / COUNT(r.host_dim_id), 2) AS pct_covering
 FROM single_listing_revenue r
-JOIN mortgage m ON r.lga_code = m.lga_code
+JOIN mortgage m ON NULLIF(REGEXP_REPLACE(r.lga_code::text, '[^0-9]', '', 'g'), '')::int = m.lga_code
 GROUP BY 1
 ORDER BY pct_covering DESC;

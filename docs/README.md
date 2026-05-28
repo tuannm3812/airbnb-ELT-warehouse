@@ -10,6 +10,7 @@ This folder contains the project handbook, architecture references, and supporti
 - [3_operations.md](3_operations.md): everyday operational commands and troubleshooting.
 - [4_roadmap.md](4_roadmap.md): next steps for turning this into a larger personal project.
 - [5_dashboard_guide.md](5_dashboard_guide.md): Metabase setup and dashboard ideas.
+- [6_task_coverage.md](6_task_coverage.md): assignment task coverage and local-vs-GCP notes.
 
 ## Artifacts
 
