@@ -23,12 +23,20 @@ Airflow UI:
 http://localhost:8080
 ```
 
+Metabase UI:
+
+```text
+http://localhost:3000
+```
+
 Local credentials:
 
 ```text
 username: admin
 password: admin
 ```
+
+Metabase asks you to create a local admin account on first launch.
 
 ## Stage Source Data
 
@@ -91,6 +99,22 @@ docker compose exec -T airflow-scheduler bash -lc "cd /opt/airflow/dbt && dbt bu
 ```
 
 Use Airflow for full orchestration testing. Use direct dbt builds for faster transformation-layer development.
+
+## Explore Dashboards
+
+After the pipeline and dbt build complete, connect Metabase to the local
+warehouse and build dashboards from the Gold marts:
+
+```text
+Host: postgres
+Port: 5432
+Database: airbnb_census
+Username: postgres
+Password: postgres
+Schema: analytics_gold
+```
+
+See [5_dashboard_guide.md](5_dashboard_guide.md) for suggested dashboard cards.
 
 ## Stop The Stack
 

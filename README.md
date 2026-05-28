@@ -4,8 +4,9 @@
 ![Airflow](https://img.shields.io/badge/Apache%20Airflow-2.x-orange?logo=apache-airflow&logoColor=white)
 ![dbt](https://img.shields.io/badge/dbt-Core%20%7C%20Cloud-FF694B?logo=dbt&logoColor=white)
 ![Postgres](https://img.shields.io/badge/PostgreSQL-13+-336791?logo=postgresql&logoColor=white)
+![Metabase](https://img.shields.io/badge/Metabase-BI-509EE3?logo=metabase&logoColor=white)
 
-An end-to-end ELT pipeline for analysing Sydney Airbnb listings alongside Australian Census demographic data. The project uses Airflow for orchestration, PostgreSQL as the warehouse, and dbt to model the data through Bronze, Silver, and Gold layers.
+An end-to-end ELT pipeline for analysing Sydney Airbnb listings alongside Australian Census demographic data. The project uses Airflow for orchestration, PostgreSQL as the warehouse, dbt to model the data through Bronze, Silver, and Gold layers, and Metabase for local BI dashboards.
 
 This repository is maintained as a personal data engineering project: local-first, reproducible with Docker, and designed to grow into a portfolio-grade analytics platform with data quality checks, BI dashboards, and operational documentation.
 
@@ -45,6 +46,7 @@ Core design choices:
 |   |-- 2_architecture.md
 |   |-- 3_operations.md
 |   |-- 4_roadmap.md
+|   |-- 5_dashboard_guide.md
 |   |-- architecture_flow.png
 |   `-- airbnb_census_warehouse_report.pdf
 |-- scripts/
@@ -64,6 +66,8 @@ Follow [docs/0_coding_standards.md](docs/0_coding_standards.md) before making co
 For local setup and run instructions, see [docs/1_instructions.md](docs/1_instructions.md).
 
 For the project roadmap, see [docs/4_roadmap.md](docs/4_roadmap.md).
+
+For Metabase dashboard setup, see [docs/5_dashboard_guide.md](docs/5_dashboard_guide.md).
 
 Prerequisites:
 
@@ -101,6 +105,7 @@ The recommended local setup uses Docker Compose. It starts:
 - PostgreSQL for both Airflow metadata and the analytics warehouse.
 - Airflow webserver and scheduler.
 - dbt Core inside the Airflow image.
+- Metabase for local BI dashboards.
 
 ### 1. Stage source data
 
@@ -146,10 +151,14 @@ docker compose up -d
 
 Open Airflow at `http://localhost:8080`.
 
+Open Metabase at `http://localhost:3000`.
+
 Default local login:
 
 - username: `admin`
 - password: `admin`
+
+Metabase asks you to create a local admin account on first launch.
 
 ### 4. Run the pipeline
 

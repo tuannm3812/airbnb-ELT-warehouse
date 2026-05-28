@@ -1,2 +1,3 @@
 CREATE DATABASE airflow;
 CREATE DATABASE airbnb_census;
+CREATE DATABASE metabase;

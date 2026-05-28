@@ -7,6 +7,7 @@ This roadmap turns the project from a working local warehouse into a stronger pe
 Completed:
 
 - Docker-based local Airflow + PostgreSQL + dbt setup.
+- Metabase service added to the local Docker stack.
 - Local source-file staging without Google Cloud Storage.
 - Full Airflow pipeline run.
 - Local dbt build with tests and snapshots.
@@ -15,7 +16,17 @@ Completed:
 
 ## Next Priorities
 
-### 1. Make The DAG More Observable
+### 1. Build The BI Demo
+
+Goal: make the warehouse useful beyond SQL queries.
+
+Recommended next step:
+
+- Build the first Metabase dashboard from `analytics_gold` marts.
+- Save dashboard screenshots under `docs/assets/`.
+- Add the strongest screenshots to the README and project summary.
+
+### 2. Make The DAG More Observable
 
 Goal: show each monthly load and dbt run clearly in Airflow.
 
@@ -29,20 +40,21 @@ Recommended next step:
 - Add a run summary table or task log summary first.
 - Refactor to dynamic task mapping after the current baseline is fully documented.
 
-### 2. Add A BI Layer
+### 3. Improve The BI Layer
 
-Goal: make the warehouse useful beyond SQL queries.
+Goal: turn the first dashboard into a stronger analytics product.
 
-Candidates:
+Ideas:
 
-- Metabase in Docker Compose.
-- Apache Superset in Docker Compose.
+- Add dashboard filters for month, neighbourhood, property type, and room type.
+- Add saved questions for supply, revenue, price, and host concentration.
+- Compare Airbnb supply with Census demographic indicators.
 
 Recommended next step:
 
-- Add Metabase first because it is quick to wire to PostgreSQL and strong for portfolio screenshots.
+- Keep Metabase first because it is quick to wire to PostgreSQL and strong for portfolio screenshots.
 
-### 3. Add Data Quality Contracts
+### 4. Add Data Quality Contracts
 
 Goal: make quality expectations explicit.
 
@@ -53,7 +65,7 @@ Ideas:
 - Add monthly row count checks.
 - Add source freshness checks where a source date is available.
 
-### 4. Add CI
+### 5. Add CI
 
 Goal: verify the project on every push.
 
@@ -64,7 +76,7 @@ Ideas:
 - Python syntax check for DAGs
 - optional Docker Compose smoke test on selected branches
 
-### 5. Publish Portfolio Story
+### 6. Publish Portfolio Story
 
 Goal: make the project easy to understand by recruiters or collaborators.
 
@@ -77,8 +89,8 @@ Deliverables:
 
 ## Suggested Immediate Sequence
 
-1. Add Metabase to Docker Compose.
-2. Build two or three dashboards over `analytics_gold`.
-3. Add screenshots under `docs/assets/`.
-4. Add a `PROJECT_SUMMARY.md`.
+1. Build the first Metabase dashboard over `analytics_gold`.
+2. Add screenshots under `docs/assets/`.
+3. Add a `PROJECT_SUMMARY.md`.
+4. Add more dbt tests for fact-to-dimension relationships.
 5. Refactor monthly processing to dynamic task mapping.

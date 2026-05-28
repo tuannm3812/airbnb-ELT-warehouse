@@ -86,6 +86,23 @@ services:
     user: "${AIRFLOW_UID:-50000}:0"
     command: scheduler
 
+  metabase:
+    image: metabase/metabase:v0.49.15
+    platform: linux/amd64
+    container_name: airbnb-metabase
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      MB_DB_TYPE: postgres
+      MB_DB_DBNAME: metabase
+      MB_DB_PORT: 5432
+      MB_DB_USER: postgres
+      MB_DB_PASS: postgres
+      MB_DB_HOST: postgres
+    ports:
+      - "3000:3000"
+
 volumes:
   postgres-data:
   airflow-logs:
