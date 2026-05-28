@@ -7,6 +7,8 @@
 
 An end-to-end ELT pipeline for analysing Sydney Airbnb listings alongside Australian Census demographic data. The project uses Airflow for orchestration, PostgreSQL as the warehouse, and dbt to model the data through Bronze, Silver, and Gold layers.
 
+This repository is maintained as a personal data engineering project: local-first, reproducible with Docker, and designed to grow into a portfolio-grade analytics platform with data quality checks, BI dashboards, and operational documentation.
+
 ![Header Image](https://www.realestate.com.au/news-image/w_1280,h_720/v1743109398/news-lifestyle-content-assets/wp-content/production/capi_66e50ad6861c43dbf0bfbe364f663d5f_e58997b3f701d49d4cb6291f6204b1e1.jpeg?_i=AA)
 
 ![Architecture Diagram](docs/architecture_flow.png)
@@ -38,14 +40,18 @@ Core design choices:
 |   `-- dbt_project.yml
 |-- docker/                           # Local Airflow, dbt, and Postgres support files
 |-- docs/
+|   |-- 0_coding_standards.md
+|   |-- 1_instructions.md
+|   |-- 2_architecture.md
+|   |-- 3_operations.md
+|   |-- 4_roadmap.md
 |   |-- architecture_flow.png
 |   `-- airbnb_census_warehouse_report.pdf
 |-- scripts/
-|   `-- stage_at3_data.sh             # Unpacks assignment ZIP files into local data folders
+|   `-- stage_at3_data.sh             # Unpacks source ZIP files into local data folders
 |-- sql/
 |   |-- init_bronze_schema.sql        # Warehouse schema bootstrap DDL
 |   `-- analysis_queries.sql          # Business analysis query pack
-|-- coding_standards.md
 |-- docker-compose.yml
 |-- requirements.txt
 `-- README.md
@@ -53,9 +59,11 @@ Core design choices:
 
 ## Setup
 
-Follow [coding_standards.md](coding_standards.md) before making code changes.
+Follow [docs/0_coding_standards.md](docs/0_coding_standards.md) before making code changes.
 
-For a concise end-to-end local walkthrough, see [docs/local_demo.md](docs/local_demo.md).
+For local setup and run instructions, see [docs/1_instructions.md](docs/1_instructions.md).
+
+For the project roadmap, see [docs/4_roadmap.md](docs/4_roadmap.md).
 
 Prerequisites:
 
@@ -96,16 +104,17 @@ The recommended local setup uses Docker Compose. It starts:
 
 ### 1. Stage source data
 
-Use the included helper to unpack the AT3 ZIP files into `./data`:
+Use the included helper to unpack the source ZIP files into `./data`:
 
 ```bash
-./scripts/stage_at3_data.sh
+./scripts/stage_at3_data.sh "/path/to/source-zips" data
 ```
 
-If the ZIP files are somewhere else:
+Alternatively set `SOURCE_ARCHIVE_DIR`:
 
 ```bash
-./scripts/stage_at3_data.sh "/path/to/bde_AT3" data
+export SOURCE_ARCHIVE_DIR="/path/to/source-zips"
+./scripts/stage_at3_data.sh
 ```
 
 Expected folder structure:

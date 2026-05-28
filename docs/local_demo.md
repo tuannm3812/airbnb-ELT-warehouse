@@ -31,16 +31,17 @@ password: admin
 
 ## 2. Stage Source Files
 
-If the AT3 ZIP files are in the default Google Drive folder:
+Pass the folder that contains the source ZIP files:
 
 ```bash
-./scripts/stage_at3_data.sh
+./scripts/stage_at3_data.sh "/path/to/source-zips" data
 ```
 
-If they are somewhere else:
+Alternatively set `SOURCE_ARCHIVE_DIR`:
 
 ```bash
-./scripts/stage_at3_data.sh "/path/to/bde_AT3" data
+export SOURCE_ARCHIVE_DIR="/path/to/source-zips"
+./scripts/stage_at3_data.sh
 ```
 
 Expected files:

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-DEFAULT_SOURCE_DIR="$HOME/Library/CloudStorage/GoogleDrive-tuannm3812@gmail.com/My Drive/01_Study/0. Master/6. UTS Drive/Sem2_2025 Spring/94693 Big Data Engineering/bde_assignment/bde_AT3"
+DEFAULT_SOURCE_DIR="${SOURCE_ARCHIVE_DIR:-data/source_zips}"
 SOURCE_DIR="${1:-$DEFAULT_SOURCE_DIR}"
 TARGET_DIR="${2:-data}"
 
