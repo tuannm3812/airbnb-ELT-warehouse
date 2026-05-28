@@ -55,6 +55,8 @@ Core design choices:
 
 Follow [coding_standards.md](coding_standards.md) before making code changes.
 
+For a concise end-to-end local walkthrough, see [docs/local_demo.md](docs/local_demo.md).
+
 Prerequisites:
 
 - Apache Airflow 2.x (local, Docker, or managed).
