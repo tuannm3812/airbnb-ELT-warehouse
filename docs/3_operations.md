@@ -51,6 +51,9 @@ docker compose exec -T airflow-scheduler airflow dags list-runs -d airbnb_census
 docker compose exec -T airflow-scheduler bash -lc "cd /opt/airflow/dbt && dbt build"
 ```
 
+Use this for model and test development. For full SCD2 validation, run the main
+Airflow DAG because snapshots depend on sequential monthly loads.
+
 ## Query Warehouse
 
 ```bash

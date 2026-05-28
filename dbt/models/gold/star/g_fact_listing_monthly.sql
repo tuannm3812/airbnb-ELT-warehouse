@@ -52,7 +52,7 @@ agg AS (
     GROUP BY listing_id, DATE_TRUNC('month', updated_at)
 ),
 
--- Prepare Neighborhoods for Matching
+-- Prepare neighbourhood strings for LGA matching.
 prep AS (
     SELECT *,
         UPPER(REGEXP_REPLACE(TRIM(host_neighbourhood), '\s+', ' ', 'g')) AS host_norm,
@@ -61,10 +61,17 @@ prep AS (
 ),
 
 bridge AS (
-    SELECT 
+    SELECT DISTINCT
         UPPER(REGEXP_REPLACE(TRIM(suburb_name), '\s+', ' ', 'g')) AS suburb_norm,
         lga_code
     FROM {{ ref('s_bridge_lga_suburb') }}
+),
+
+lga_names AS (
+    SELECT DISTINCT
+        UPPER(REGEXP_REPLACE(TRIM(lga_name), '\s+', ' ', 'g')) AS lga_name_norm,
+        lga_code
+    FROM {{ ref('s_dim_lga') }}
 )
 
 SELECT
@@ -115,16 +122,19 @@ LEFT JOIN {{ ref('g_dim_host') }} dh
    AND p.min_fact_ts >= dh.dbt_valid_from
    AND p.min_fact_ts <  COALESCE(dh.dbt_valid_to, '9999-12-31'::timestamp)
 
--- Join Bridge -> LGA (Listing)
+-- Listing neighbourhood is usually already an LGA name. Fall back to the
+-- suburb bridge for any rows where it is supplied as a suburb.
+LEFT JOIN lga_names lga_list_name ON lga_list_name.lga_name_norm = p.list_norm
 LEFT JOIN bridge b_list ON b_list.suburb_norm = p.list_norm
 LEFT JOIN {{ ref('g_dim_lga') }} dlg_list
-    ON dlg_list.lga_code = b_list.lga_code
+    ON dlg_list.lga_code = COALESCE(lga_list_name.lga_code, b_list.lga_code)
    AND p.min_fact_ts >= dlg_list.dbt_valid_from
    AND p.min_fact_ts <  COALESCE(dlg_list.dbt_valid_to, '9999-12-31'::timestamp)
 
--- Join Bridge -> LGA (Host)
+-- Host neighbourhood is usually a suburb. Support direct LGA-name matches too.
+LEFT JOIN lga_names lga_host_name ON lga_host_name.lga_name_norm = p.host_norm
 LEFT JOIN bridge b_host ON b_host.suburb_norm = p.host_norm
 LEFT JOIN {{ ref('g_dim_lga') }} dlg_host
-    ON dlg_host.lga_code = b_host.lga_code
+    ON dlg_host.lga_code = COALESCE(lga_host_name.lga_code, b_host.lga_code)
    AND p.min_fact_ts >= dlg_host.dbt_valid_from
    AND p.min_fact_ts <  COALESCE(dlg_host.dbt_valid_to, '9999-12-31'::timestamp)

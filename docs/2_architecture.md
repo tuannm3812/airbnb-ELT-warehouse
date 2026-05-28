@@ -68,9 +68,31 @@ The dbt project uses:
 - source declarations for Bronze raw tables
 - Bronze pass-through views
 - Silver typed/cleaned models
-- snapshots for SCD-style history
+- timestamp snapshots for SCD2-style dimension history
 - Gold dimensions and monthly fact table
 - Gold marts for property, listing-neighbourhood, and host-neighbourhood analysis
+
+## SCD2 Design
+
+Dimension snapshots are created only for entities that become Gold dimensions:
+host, property, listing neighbourhood, and LGA.
+
+The listing-derived dimensions use `updated_at`, derived from `scraped_date`, as
+the snapshot timestamp. The LGA reference dimension uses a stable source
+effective timestamp because the NSW LGA mapping is static reference data in this
+project.
+
+The Gold fact table stores only business keys, resolved dimension surrogate
+keys, and metrics. It resolves each dimension key with a validity-window join:
+
+```text
+fact timestamp >= dbt_valid_from
+fact timestamp <  coalesce(dbt_valid_to, open-ended future timestamp)
+```
+
+The Gold marts join facts to dimensions through those SCD2-resolved surrogate
+keys, so metrics are reported using the dimension values valid for the fact
+month rather than blindly using the latest dimension version.
 
 ## Local Runtime
 

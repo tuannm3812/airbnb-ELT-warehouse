@@ -4,8 +4,9 @@
     config(
       target_schema='silver',
       unique_key='lga_code',
-      strategy='check',
-      check_cols=['lga_name']
+      strategy='timestamp',
+      updated_at='updated_at',
+      invalidate_hard_deletes=True
     )
 }}
 

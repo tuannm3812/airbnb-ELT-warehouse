@@ -4,6 +4,7 @@ set -euo pipefail
 DAG_ID="${1:-airbnb_census_monthly_pipeline}"
 MIN_BRONZE_ROWS="${MIN_BRONZE_ROWS:-1}"
 MIN_GOLD_FACT_ROWS="${MIN_GOLD_FACT_ROWS:-1}"
+MIN_HOST_NEIGHBOURHOOD_ROWS="${MIN_HOST_NEIGHBOURHOOD_ROWS:-1}"
 
 latest_run_sql="
 select run_id || '|' || state
@@ -43,6 +44,12 @@ union all
 select 'analytics_gold.g_dim_host', count(*) from analytics_gold.g_dim_host
 union all
 select 'analytics_gold.g_dim_property', count(*) from analytics_gold.g_dim_property
+union all
+select 'analytics_gold.dm_host_neighbourhood', count(*) from analytics_gold.dm_host_neighbourhood
+union all
+select 'analytics_gold.dm_listing_neighbourhood', count(*) from analytics_gold.dm_listing_neighbourhood
+union all
+select 'analytics_gold.dm_property_type', count(*) from analytics_gold.dm_property_type
 order by 1;
 "
 
@@ -60,6 +67,11 @@ gold_fact_rows="$(
     psql -U postgres -d airbnb_census -Atc "select count(*) from analytics_gold.g_fact_listing_monthly;"
 )"
 
+host_neighbourhood_rows="$(
+  docker compose exec -T postgres \
+    psql -U postgres -d airbnb_census -Atc "select count(*) from analytics_gold.dm_host_neighbourhood;"
+)"
+
 if [ "$bronze_rows" -lt "$MIN_BRONZE_ROWS" ]; then
   echo "Bronze row count is too low: ${bronze_rows}" >&2
   exit 1
@@ -67,6 +79,11 @@ fi
 
 if [ "$gold_fact_rows" -lt "$MIN_GOLD_FACT_ROWS" ]; then
   echo "Gold fact row count is too low: ${gold_fact_rows}" >&2
+  exit 1
+fi
+
+if [ "$host_neighbourhood_rows" -lt "$MIN_HOST_NEIGHBOURHOOD_ROWS" ]; then
+  echo "Host-neighbourhood mart row count is too low: ${host_neighbourhood_rows}" >&2
   exit 1
 fi
 

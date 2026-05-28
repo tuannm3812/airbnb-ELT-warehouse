@@ -9,6 +9,39 @@ models:
         tests: [not_null]
       - name: fact_month
         tests: [not_null]
+      - name: neighbourhood_dim_id
+        tests:
+          - relationships:
+              to: ref('g_dim_neighbourhood')
+              field: neighbourhood_dim_id
+              config:
+                where: "neighbourhood_dim_id != '-1'"
+      - name: property_dim_id
+        tests:
+          - relationships:
+              to: ref('g_dim_property')
+              field: property_dim_id
+              config:
+                where: "property_dim_id != '-1'"
+      - name: host_dim_id
+        tests:
+          - relationships:
+              to: ref('g_dim_host')
+              field: host_dim_id
+              config:
+                where: "host_dim_id != '-1'"
+      - name: listing_lga_dim_id
+        tests:
+          - relationships:
+              to: ref('g_dim_lga')
+              field: lga_dim_id
+      - name: host_lga_dim_id
+        tests:
+          - relationships:
+              to: ref('g_dim_lga')
+              field: lga_dim_id
+              config:
+                where: "host_lga_dim_id != '-1'"
 
   - name: g_dim_lga
     columns:

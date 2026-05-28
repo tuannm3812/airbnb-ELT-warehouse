@@ -100,6 +100,21 @@ docker compose exec -T airflow-scheduler bash -lc "cd /opt/airflow/dbt && dbt bu
 
 Use Airflow for full orchestration testing. Use direct dbt builds for faster transformation-layer development.
 
+## SCD2 Snapshot Notes
+
+Use the Airflow DAG for end-to-end SCD2 testing. The DAG loads the May 2020
+baseline, runs dbt, then appends each later monthly file and runs dbt again.
+That order is intentional: dbt snapshots capture dimension changes as each
+monthly extract becomes visible.
+
+The Gold fact table resolves SCD2 dimension keys during the fact build by
+joining each fact row to the dimension version that was valid for that row's
+month. Gold data marts then join through those resolved surrogate keys.
+
+If you manually rebuild from an already fully loaded Bronze table, dbt can
+validate models and tests, but it cannot reconstruct snapshot history that was
+never observed through sequential snapshot runs.
+
 ## Explore Dashboards
 
 After the pipeline and dbt build complete, connect Metabase to the local
