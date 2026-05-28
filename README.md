@@ -36,24 +36,33 @@ Core design choices:
 |   |   `-- gold/                     # Star schema and analytics marts
 |   |-- snapshots/                    # SCD Type 2 snapshot definitions
 |   `-- dbt_project.yml
+|-- docker/                           # Local Airflow, dbt, and Postgres support files
 |-- docs/
 |   |-- architecture_flow.png
 |   `-- airbnb_census_warehouse_report.pdf
+|-- scripts/
+|   `-- stage_at3_data.sh             # Unpacks assignment ZIP files into local data folders
 |-- sql/
 |   |-- init_bronze_schema.sql        # Warehouse schema bootstrap DDL
 |   `-- analysis_queries.sql          # Business analysis query pack
+|-- coding_standards.md
+|-- docker-compose.yml
 |-- requirements.txt
 `-- README.md
 ```
 
 ## Setup
 
+Follow [coding_standards.md](coding_standards.md) before making code changes.
+
 Prerequisites:
 
-- Google Cloud Composer or an Airflow 2.x environment.
+- Apache Airflow 2.x (local, Docker, or managed).
 - PostgreSQL warehouse connection available to Airflow as `postgres`.
-- dbt Cloud job connected to the same PostgreSQL warehouse.
-- Raw data staged under `/home/airflow/gcs/data` with `airbnb`, `census/G01`, `census/G02`, and `mappings` subdirectories.
+- dbt Core locally, or dbt Cloud if `DBT_RUN_MODE=cloud`.
+- Raw data staged under a local data root with `airbnb`, `census/G01`, `census/G02`, and `mappings` subdirectories.
+  - Default root is `/home/airflow/gcs/data` for compatibility.
+  - Set `AIRFLOW_DATA_PATH` (env var or Airflow Variable) to run locally, e.g. `/opt/airbnb-data`.
 
 Airflow variables used by the main pipeline:
 
@@ -63,18 +72,102 @@ Airflow variables used by the main pipeline:
 - `DBT_CLOUD_JOB_ID`
 - `DBT_CLOUD_API_TOKEN`
 - `DBT_CLOUD_WAIT_TIMEOUT_SEC`: defaults to `3600`.
+- `AIRFLOW_DATA_PATH` (optional): filesystem root for input files and archives.
+- `DBT_RUN_MODE`: use `local` for Docker/local dbt or `cloud` for dbt Cloud.
+- `DBT_PROJECT_DIR`: local dbt project path when `DBT_RUN_MODE=local`.
+- `DBT_PROFILES_DIR`: local dbt profile path when `DBT_RUN_MODE=local`.
+- `DBT_LOCAL_COMMANDS`: local command sequence, defaults to `dbt build`.
 
-Install Python dependencies in the Airflow environment:
+Install Python dependencies:
 
 ```bash
 pip install -r requirements.txt
+```
+
+## Local Airflow + dbt Setup (No Google Cloud)
+
+The recommended local setup uses Docker Compose. It starts:
+
+- PostgreSQL for both Airflow metadata and the analytics warehouse.
+- Airflow webserver and scheduler.
+- dbt Core inside the Airflow image.
+
+### 1. Stage source data
+
+Use the included helper to unpack the AT3 ZIP files into `./data`:
+
+```bash
+./scripts/stage_at3_data.sh
+```
+
+If the ZIP files are somewhere else:
+
+```bash
+./scripts/stage_at3_data.sh "/path/to/bde_AT3" data
+```
+
+Expected folder structure:
+
+- `data/airbnb/05_2020.csv` and `06_2020.csv`...`04_2021.csv`
+- `data/census/G01/2016Census_G01_NSW_LGA.csv`
+- `data/census/G02/2016Census_G02_NSW_LGA.csv`
+- `data/mappings/NSW_LGA_CODE.csv`
+- `data/mappings/NSW_LGA_SUBURB.csv`
+
+### 2. Configure local environment
+
+```bash
+cp .env.example .env
+```
+
+On macOS/Linux, set `AIRFLOW_UID` to your local user id:
+
+```bash
+echo "AIRFLOW_UID=$(id -u)" >> .env
+```
+
+### 3. Start the stack
+
+```bash
+docker compose up airflow-init
+docker compose up -d
+```
+
+Open Airflow at `http://localhost:8080`.
+
+Default local login:
+
+- username: `admin`
+- password: `admin`
+
+### 4. Run the pipeline
+
+The Docker setup runs dbt locally with `DBT_RUN_MODE=local`, so no dbt Cloud credentials are required.
+
+Trigger `airbnb_census_monthly_pipeline` with `RUN_INITIAL_LOAD=true`.
+
+This path loads the baseline, runs dbt, then processes each monthly file in chronological order. The standalone `airbnb_census_initial_bronze_load` DAG is useful for Bronze-only testing, but it does not run the full dbt sequence.
+
+For manual dbt checks inside the Airflow container:
+
+```bash
+docker compose exec airflow-scheduler bash
+cd /opt/airflow/dbt
+dbt build
+```
+
+To verify the latest pipeline run and key warehouse outputs:
+
+```bash
+./scripts/check_pipeline_outputs.sh
 ```
 
 ## Running The Pipeline
 
 1. Deploy the contents of `dags/` to Airflow.
 2. Deploy the dbt project in `dbt/` to dbt Cloud or your dbt runner.
-3. Stage the source CSV files in the expected GCS-mounted data folders.
+3. Stage the source CSV files in `${AIRFLOW_DATA_PATH:-/home/airflow/gcs/data}` with folders:
+   - `airbnb/`, `census/G01/`, `census/G02/`, `mappings/`
 4. Trigger the `airbnb_census_monthly_pipeline` DAG.
 
 The main DAG bootstraps the Bronze schema with `sql/init_bronze_schema.sql`, loads the May 2020 baseline data and reference files, runs dbt, then processes the remaining monthly Airbnb extracts in chronological order. Each monthly load appends to `bronze.airbnb_listings_raw`, triggers dbt, and archives the processed CSV.

@@ -8,13 +8,22 @@
        them dynamically to adapt to changing column counts.
    ============================================================================ */
 
+-- Reset warehouse schemas for a reproducible bootstrap run.
+DROP SCHEMA IF EXISTS analytics_bronze CASCADE;
+DROP SCHEMA IF EXISTS analytics_silver CASCADE;
+DROP SCHEMA IF EXISTS analytics_gold CASCADE;
+DROP SCHEMA IF EXISTS analytics CASCADE;
+DROP SCHEMA IF EXISTS bronze CASCADE;
+DROP SCHEMA IF EXISTS silver CASCADE;
+DROP SCHEMA IF EXISTS gold CASCADE;
+
 -- Setup schemas.
 CREATE SCHEMA IF NOT EXISTS bronze;
 CREATE SCHEMA IF NOT EXISTS silver;
 CREATE SCHEMA IF NOT EXISTS gold;
 
 -- Airbnb listings raw table.
-DROP TABLE IF EXISTS bronze.airbnb_listings_raw;
+DROP TABLE IF EXISTS bronze.airbnb_listings_raw CASCADE;
 CREATE TABLE bronze.airbnb_listings_raw (
     listing_id                  TEXT,
     scrape_id                   TEXT,
@@ -41,14 +50,14 @@ CREATE TABLE bronze.airbnb_listings_raw (
 );
 
 -- LGA code mapping.
-DROP TABLE IF EXISTS bronze.nsw_lga_code_raw;
+DROP TABLE IF EXISTS bronze.nsw_lga_code_raw CASCADE;
 CREATE TABLE bronze.nsw_lga_code_raw (
     lga_code TEXT,
     lga_name TEXT
 );
 
 -- LGA suburb mapping.
-DROP TABLE IF EXISTS bronze.nsw_lga_suburb_raw;
+DROP TABLE IF EXISTS bronze.nsw_lga_suburb_raw CASCADE;
 CREATE TABLE bronze.nsw_lga_suburb_raw (
     lga_name    TEXT,
     suburb_name TEXT

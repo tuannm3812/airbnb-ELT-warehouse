@@ -15,17 +15,24 @@ from typing import Iterable, List, Optional, Tuple
 # Third-party
 from airflow import DAG
 from airflow.operators.python import PythonOperator
+from airflow.models import Variable
 from airflow.providers.postgres.hooks.postgres import PostgresHook
-from airflow.providers.postgres.operators.postgres import PostgresOperator
+from psycopg2.errors import DuplicateSchema, UniqueViolation
 
 # ================================
 # Config / Constants
 # ================================
 
-AIRFLOW_DATA: str = "/home/airflow/gcs/data"
+AIRFLOW_DATA: str = os.environ.get(
+    "AIRFLOW_DATA_PATH",
+    Variable.get("AIRFLOW_DATA_PATH", "/home/airflow/gcs/data"),
+)
 BRONZE_SCHEMA: str = "bronze"
 PG_CONN_ID: str = "postgres"
-SQL_FILE_PATH: str = "sql/init_bronze_schema.sql"
+SQL_FILE_PATH: str = os.environ.get(
+    "BRONZE_INIT_SQL_PATH",
+    Variable.get("BRONZE_INIT_SQL_PATH", "sql/init_bronze_schema.sql"),
+)
 
 # Folders
 AIRBNB_DIR: str = os.path.join(AIRFLOW_DATA, "airbnb")
@@ -272,6 +279,21 @@ def archive_input(file_path: str, archive_dir: str) -> None:
     shutil.move(file_path, dst)
 
 
+def ensure_schema(pg_hook: PostgresHook, schema: str) -> None:
+    try:
+        pg_hook.run(f"CREATE SCHEMA IF NOT EXISTS {schema};")
+    except (DuplicateSchema, UniqueViolation):
+        pass
+
+
+def run_sql_file(file_path: str) -> None:
+    if not os.path.exists(file_path):
+        raise FileNotFoundError(f"Missing SQL file: {file_path}")
+    pg_hook = PostgresHook(postgres_conn_id=PG_CONN_ID)
+    with open(file_path, "r", encoding="utf-8") as sql_file:
+        pg_hook.run(sql_file.read())
+
+
 def load_with_autocreate(
     table: str,
     file_path: str,
@@ -289,6 +311,7 @@ def load_with_autocreate(
         clip_to_cols (Optional[int]): Pre-process CSV to keep N cols.
     """
     pg_hook = PostgresHook(postgres_conn_id=PG_CONN_ID)
+    ensure_schema(pg_hook, BRONZE_SCHEMA)
     source_path = file_path
 
     # Handle dirty CSVs using local temp storage
@@ -341,10 +364,10 @@ with DAG(
     tags=["airbnb", "census", "bronze"],
 ) as dag:
 
-    run_part1_sql_task = PostgresOperator(
+    run_part1_sql_task = PythonOperator(
         task_id="run_part1_sql",
-        postgres_conn_id=PG_CONN_ID,
-        sql=SQL_FILE_PATH,
+        python_callable=run_sql_file,
+        op_kwargs={"file_path": SQL_FILE_PATH},
     )
 
     load_airbnb_task = PythonOperator(

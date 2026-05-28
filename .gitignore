@@ -14,10 +14,15 @@ dbt/seeds/
 profiles.yml
 
 # Airflow
+.airflow/
 airflow.cfg
 airflow.db
 unittests.cfg
 logs/
+
+# Local staged data
+data/**/*.csv
+!data/**/.gitkeep
 
 # IDE settings
 .vscode/
