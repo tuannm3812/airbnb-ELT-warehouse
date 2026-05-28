@@ -12,8 +12,6 @@ This repository is maintained as a personal data engineering project: local-firs
 
 ![Header Image](https://www.realestate.com.au/news-image/w_1280,h_720/v1743109398/news-lifestyle-content-assets/wp-content/production/capi_66e50ad6861c43dbf0bfbe364f663d5f_e58997b3f701d49d4cb6291f6204b1e1.jpeg?_i=AA)
 
-![Architecture Diagram](docs/assets/architecture_flow.png)
-
 ## Overview
 
 The warehouse combines monthly Airbnb listing extracts with ABS Census G01/G02 data and NSW LGA mapping files. It produces a dimensional model and analytics marts for rental-market performance, host concentration, neighbourhood demand, and mortgage-affordability analysis.
@@ -50,6 +48,7 @@ Core design choices:
 |   |-- 6_task_coverage.md
 |   |-- 7_dbt_guide.md
 |   |-- assets/
+|   |   |-- architecture_flow.drawio
 |   |   |-- architecture_flow.png
 |   |   `-- screenshots/
 |   |-- reports/

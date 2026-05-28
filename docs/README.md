@@ -16,6 +16,7 @@ This folder contains the project handbook, architecture references, and supporti
 ## 2. Artifacts
 
 - [assets/architecture_flow.png](assets/architecture_flow.png): high-level ingestion, transformation, and warehouse flow.
+- [assets/architecture_flow.drawio](assets/architecture_flow.drawio): editable draw.io source for the architecture diagram.
 - [assets/screenshots/](assets/screenshots/): portfolio dashboard screenshots.
 - [reports/airbnb_census_warehouse_report.pdf](reports/airbnb_census_warehouse_report.pdf): original analysis report and narrative.
 - [archive/local_demo.md](archive/local_demo.md): previous local demo notes, kept for historical reference.

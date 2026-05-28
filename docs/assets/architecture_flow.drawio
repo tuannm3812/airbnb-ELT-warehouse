@@ -1,0 +1,82 @@
+<mxfile host="app.diagrams.net" modified="2026-05-28T00:00:00.000Z" agent="Codex" version="24.7.17" type="device">
+  <diagram id="airbnb-elt-warehouse" name="Airbnb ELT Warehouse">
+    <mxGraphModel dx="1422" dy="794" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" value="Airbnb Census ELT Warehouse - Local Architecture" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=24;fontStyle=1;fontColor=#1F2937;" vertex="1" parent="1">
+          <mxGeometry x="360" y="30" width="880" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="source" value="Source ZIPs&#xa;Airbnb Listings&#xa;Census G01/G02&#xa;NSW LGA Mapping" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF7ED;strokeColor=#F97316;fontColor=#111827;arcSize=8;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="70" y="140" width="180" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="local_data" value="Local Data Folders&#xa;data/airbnb&#xa;data/census&#xa;data/mappings" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EFF6FF;strokeColor=#3B82F6;fontColor=#111827;arcSize=8;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="310" y="140" width="180" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="airflow" value="Airflow DAG&#xa;airbnb_census_monthly_pipeline&#xa;Sequential monthly loads&#xa;dbt build after each load" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ECFDF5;strokeColor=#10B981;fontColor=#111827;arcSize=8;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="550" y="130" width="230" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="postgres" value="PostgreSQL Warehouse" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F8FAFC;strokeColor=#64748B;fontColor=#111827;arcSize=8;fontSize=16;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="900" y="105" width="500" height="520" as="geometry" />
+        </mxCell>
+        <mxCell id="bronze_raw" value="bronze&#xa;Raw Airflow-loaded tables&#xa;All fields text-first" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FEF3C7;strokeColor=#D97706;fontColor=#111827;arcSize=8;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="950" y="165" width="180" height="95" as="geometry" />
+        </mxCell>
+        <mxCell id="dbt_bronze" value="analytics_bronze&#xa;dbt source-facing views" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FEF3C7;strokeColor=#D97706;fontColor=#111827;arcSize=8;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="1170" y="165" width="180" height="95" as="geometry" />
+        </mxCell>
+        <mxCell id="silver" value="analytics_silver&#xa;Cleaned and typed models&#xa;Entity prep models&#xa;Suburb-LGA bridge" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E0F2FE;strokeColor=#0284C7;fontColor=#111827;arcSize=8;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="950" y="310" width="180" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="snapshots" value="silver snapshots&#xa;snap_host&#xa;snap_property&#xa;snap_neighbourhood&#xa;snap_lga" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F3E8FF;strokeColor=#9333EA;fontColor=#111827;arcSize=8;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="1170" y="310" width="180" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="gold" value="analytics_gold Star Schema&#xa;g_fact_listing_monthly&#xa;g_dim_host/property/neighbourhood/LGA&#xa;g_census_g01/g02" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ECFCCB;strokeColor=#65A30D;fontColor=#111827;arcSize=8;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="950" y="470" width="400" height="105" as="geometry" />
+        </mxCell>
+        <mxCell id="marts" value="Gold Data Marts&#xa;dm_listing_neighbourhood&#xa;dm_property_type&#xa;dm_host_neighbourhood" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#DCFCE7;strokeColor=#16A34A;fontColor=#111827;arcSize=8;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="960" y="675" width="240" height="105" as="geometry" />
+        </mxCell>
+        <mxCell id="consumers" value="Consumers&#xa;SQL analysis queries&#xa;Metabase dashboards&#xa;Portfolio screenshots" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F1F5F9;strokeColor=#475569;fontColor=#111827;arcSize=8;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="1280" y="675" width="220" height="105" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" style="endArrow=block;html=1;rounded=0;strokeWidth=2;strokeColor=#64748B;" edge="1" parent="1" source="source" target="local_data">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" style="endArrow=block;html=1;rounded=0;strokeWidth=2;strokeColor=#64748B;" edge="1" parent="1" source="local_data" target="airflow">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" style="endArrow=block;html=1;rounded=0;strokeWidth=2;strokeColor=#64748B;" edge="1" parent="1" source="airflow" target="bronze_raw">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e4" style="endArrow=block;html=1;rounded=0;strokeWidth=2;strokeColor=#64748B;" edge="1" parent="1" source="bronze_raw" target="dbt_bronze">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e5" style="endArrow=block;html=1;rounded=0;strokeWidth=2;strokeColor=#64748B;" edge="1" parent="1" source="dbt_bronze" target="silver">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e6" style="endArrow=block;html=1;rounded=0;strokeWidth=2;strokeColor=#64748B;" edge="1" parent="1" source="silver" target="snapshots">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e7" style="endArrow=block;html=1;rounded=0;strokeWidth=2;strokeColor=#64748B;" edge="1" parent="1" source="snapshots" target="gold">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e8" style="endArrow=block;html=1;rounded=0;strokeWidth=2;strokeColor=#64748B;" edge="1" parent="1" source="gold" target="marts">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e9" style="endArrow=block;html=1;rounded=0;strokeWidth=2;strokeColor=#64748B;" edge="1" parent="1" source="marts" target="consumers">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="dbt_runner" value="dbt Core runner&#xa;inside Airflow container" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFE4E6;strokeColor=#E11D48;fontColor=#111827;arcSize=8;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="560" y="365" width="210" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="e10" style="endArrow=block;html=1;rounded=0;strokeWidth=2;dashed=1;strokeColor=#E11D48;" edge="1" parent="1" source="airflow" target="dbt_runner">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e11" style="endArrow=block;html=1;rounded=0;strokeWidth=2;dashed=1;strokeColor=#E11D48;" edge="1" parent="1" source="dbt_runner" target="dbt_bronze">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

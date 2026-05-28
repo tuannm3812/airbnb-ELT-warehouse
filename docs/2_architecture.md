@@ -9,7 +9,19 @@ This project implements a local ELT warehouse for analysing Sydney Airbnb listin
 - dbt builds the transformation layer, tests, and snapshots.
 - Docker Compose provides a reproducible local development environment.
 
-## 2.2 Data Flow
+## 2.2 Architecture Diagram
+
+The editable architecture diagram is stored as a draw.io file:
+
+- [assets/architecture_flow.drawio](assets/architecture_flow.drawio)
+
+The current rendered export is:
+
+- [assets/architecture_flow.png](assets/architecture_flow.png)
+
+Update the draw.io source first, then export a new PNG when the diagram changes.
+
+## 2.3 Data Flow
 
 ```text
 CSV ZIP files
@@ -23,7 +35,7 @@ CSV ZIP files
   -> SQL analysis queries / BI layer
 ```
 
-## 2.3 Medallion Layers
+## 2.4 Medallion Layers
 
 Bronze:
 
@@ -42,7 +54,7 @@ Gold:
 - Star schema and reporting marts.
 - Includes facts, dimensions, Census reference tables, and business-facing aggregate views.
 
-## 2.4 Orchestration Design
+## 2.5 Orchestration Design
 
 The main Airflow DAG is:
 
@@ -61,7 +73,7 @@ It performs:
 
 Monthly files are discovered at task runtime so archiving files does not mutate the DAG graph while a run is active.
 
-## 2.5 dbt Design
+## 2.6 dbt Design
 
 The dbt project uses:
 
@@ -72,7 +84,7 @@ The dbt project uses:
 - Gold dimensions and monthly fact table
 - Gold marts for property, listing-neighbourhood, and host-neighbourhood analysis
 
-## 2.6 SCD2 Design
+## 2.7 SCD2 Design
 
 SCD2 means the warehouse keeps historical versions of a dimension row. Instead
 of overwriting a host, property, neighbourhood, or LGA record, dbt snapshots
@@ -109,7 +121,7 @@ The Gold marts join facts to dimensions through those SCD2-resolved surrogate
 keys, so metrics are reported using the dimension values valid for the fact
 month rather than blindly using the latest dimension version.
 
-## 2.7 Why Sequential dbt Runs Matter
+## 2.8 Why Sequential dbt Runs Matter
 
 dbt snapshots record what dbt can observe at run time. For this project, the
 Airflow DAG intentionally loads one monthly file, runs dbt, loads the next
@@ -120,7 +132,7 @@ month. If every monthly file is loaded first and dbt runs only once at the end,
 dbt can build the final models but cannot recreate intermediate snapshot states
 that were never observed.
 
-## 2.8 Other SCD Patterns
+## 2.9 Other SCD Patterns
 
 This project currently uses SCD2 because analytics need to report historical
 facts with the dimension values that were valid at the time.
@@ -139,7 +151,7 @@ Recommended extension:
 - use SCD1-style cleanup in Silver for standardised text fields
 - consider SCD0 for source IDs and stable Census reference attributes
 
-## 2.9 Local Runtime
+## 2.10 Local Runtime
 
 Docker Compose starts:
 
@@ -148,7 +160,7 @@ Docker Compose starts:
 - `airflow-scheduler`: DAG scheduler and local dbt runner
 - `airflow-init`: one-time metadata setup and local admin user creation
 
-## 2.10 Current Tradeoffs
+## 2.11 Current Tradeoffs
 
 - Local runs prioritize reproducibility over production-grade security.
 - Raw CSV files are staged locally and ignored by Git.
