@@ -1,4 +1,4 @@
-{% snapshot property_snapshot %}
+{% snapshot snap_property %}
 
 {{
     config(

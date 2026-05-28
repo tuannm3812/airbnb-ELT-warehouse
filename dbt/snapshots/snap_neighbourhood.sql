@@ -1,4 +1,4 @@
-{% snapshot neighbourhood_snapshot %}
+{% snapshot snap_neighbourhood %}
 
 {{
     config(

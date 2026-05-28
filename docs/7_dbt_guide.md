@@ -74,10 +74,10 @@ dbt/snapshots/
 
 Current snapshots:
 
-- `host_snapshot`
-- `property_snapshot`
-- `neighbourhood_snapshot`
-- `lga_snapshot`
+- `snap_host`
+- `snap_property`
+- `snap_neighbourhood`
+- `snap_lga`
 
 The listing-derived snapshots use timestamp strategy with:
 
@@ -157,10 +157,10 @@ environment or you want a hosted scheduler, lineage UI, and job history.
 Start with these files:
 
 - `dbt/models/silver/s_listings_clean.sql`
-- `dbt/snapshots/host_snapshot.sql`
-- `dbt/snapshots/property_snapshot.sql`
-- `dbt/snapshots/neighbourhood_snapshot.sql`
-- `dbt/snapshots/lga_snapshot.sql`
+- `dbt/snapshots/snap_host.sql`
+- `dbt/snapshots/snap_property.sql`
+- `dbt/snapshots/snap_neighbourhood.sql`
+- `dbt/snapshots/snap_lga.sql`
 - `dbt/models/gold/star/g_fact_listing_monthly.sql`
 - `dbt/models/gold/mart/dm_listing_neighbourhood.sql`
 - `dbt/models/gold/mart/dm_property_type.sql`

@@ -1,4 +1,4 @@
-{% snapshot host_snapshot %}
+{% snapshot snap_host %}
 
 {{
     config(

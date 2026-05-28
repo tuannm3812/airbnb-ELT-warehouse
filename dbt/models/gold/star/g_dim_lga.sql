@@ -1,7 +1,7 @@
 /* ============================================================================
    MODEL:  g_dim_lga
    PURPOSE: SCD2 Dimension for Local Government Areas.
-   INPUT:   silver.lga_snapshot
+   INPUT:   silver.snap_lga
    GRAIN:   1 row per (lga_code, dbt_valid_from)
    ============================================================================ */
 {{ config(materialized='table') }}
@@ -17,4 +17,4 @@ SELECT
     -- SCD Metadata
     dbt_valid_from,
     dbt_valid_to
-FROM {{ ref('lga_snapshot') }}
+FROM {{ ref('snap_lga') }}

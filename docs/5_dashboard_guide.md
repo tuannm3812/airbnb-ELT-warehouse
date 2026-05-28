@@ -101,7 +101,7 @@ After the first dashboard is built:
 1. Capture the dashboard overview.
 2. Capture one drill-down chart for neighbourhood performance.
 3. Capture one chart that compares property types.
-4. Save screenshots under `docs/assets/`.
+4. Save screenshots under `docs/assets/screenshots/`.
 5. Reference them from the README or `PROJECT_SUMMARY.md`.
 
 ## 5.6 Reset Metabase

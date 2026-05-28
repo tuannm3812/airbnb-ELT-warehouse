@@ -1,7 +1,7 @@
 /* ============================================================================
    MODEL:   g_dim_host
    PURPOSE: SCD2 Dimension for Hosts.
-   INPUT:   silver.host_snapshot
+   INPUT:   silver.snap_host
    GRAIN:   1 row per (host_id, dbt_valid_from)
    ============================================================================ */
 {{ config(materialized='table') }}
@@ -15,4 +15,4 @@ SELECT
     host_neighbourhood,
     dbt_valid_from,
     dbt_valid_to
-FROM {{ ref('host_snapshot') }}
+FROM {{ ref('snap_host') }}

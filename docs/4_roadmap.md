@@ -23,7 +23,7 @@ Goal: make the warehouse useful beyond SQL queries.
 Recommended next step:
 
 - Build the first Metabase dashboard from `analytics_gold` marts.
-- Save dashboard screenshots under `docs/assets/`.
+- Save dashboard screenshots under `docs/assets/screenshots/`.
 - Add the strongest screenshots to the README and project summary.
 
 ### 4.2.2 Make The DAG More Observable
@@ -90,7 +90,7 @@ Deliverables:
 ## 4.3 Suggested Immediate Sequence
 
 1. Build the first Metabase dashboard over `analytics_gold`.
-2. Add screenshots under `docs/assets/`.
+2. Add screenshots under `docs/assets/screenshots/`.
 3. Add a `PROJECT_SUMMARY.md`.
 4. Add more dbt tests for fact-to-dimension relationships.
 5. Refactor monthly processing to dynamic task mapping.

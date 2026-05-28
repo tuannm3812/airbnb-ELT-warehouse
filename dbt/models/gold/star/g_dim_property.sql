@@ -1,7 +1,7 @@
 /* ============================================================================
    MODEL:  g_dim_property
    PURPOSE: SCD2 Dimension for Property Configurations.
-   INPUT:   silver.property_snapshot
+   INPUT:   silver.snap_property
    GRAIN:   1 row per (property_nk, dbt_valid_from)
    ============================================================================ */
 {{ config(materialized='table') }}
@@ -14,4 +14,4 @@ SELECT
     accommodates,
     dbt_valid_from,
     dbt_valid_to
-FROM {{ ref('property_snapshot') }}
+FROM {{ ref('snap_property') }}

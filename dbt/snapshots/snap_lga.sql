@@ -1,4 +1,4 @@
-{% snapshot lga_snapshot %}
+{% snapshot snap_lga %}
 
 {{
     config(

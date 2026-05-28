@@ -1,7 +1,7 @@
 /* ============================================================================
    MODEL:  g_dim_neighbourhood
    PURPOSE: SCD2 Dimension for Listing Neighbourhoods.
-   INPUT:   silver.neighbourhood_snapshot
+   INPUT:   silver.snap_neighbourhood
    GRAIN:   1 row per (neigh_nk, dbt_valid_from)
    ============================================================================ */
 {{ config(materialized='table') }}
@@ -12,4 +12,4 @@ SELECT
     listing_neighbourhood,
     dbt_valid_from,
     dbt_valid_to
-FROM {{ ref('neighbourhood_snapshot') }}
+FROM {{ ref('snap_neighbourhood') }}
