@@ -43,14 +43,14 @@ Metabase asks you to create a local admin account on first launch.
 Pass the folder that contains the source ZIP files:
 
 ```bash
-./scripts/stage_at3_data.sh "/path/to/source-zips" data
+./scripts/stage_source_data.sh "/path/to/source-zips" data
 ```
 
 Alternatively set `SOURCE_ARCHIVE_DIR`:
 
 ```bash
 export SOURCE_ARCHIVE_DIR="/path/to/source-zips"
-./scripts/stage_at3_data.sh
+./scripts/stage_source_data.sh
 ```
 
 Expected input layout:

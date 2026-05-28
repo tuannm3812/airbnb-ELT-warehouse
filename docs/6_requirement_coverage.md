@@ -1,10 +1,12 @@
-# Task Coverage
+# Requirement Coverage
 
-This document maps the original assignment tasks to the current repo state.
+This document maps the original project brief to the current local-first repo
+state. It is useful when reviewing completeness, even though the repository is
+now maintained as a personal portfolio project.
 
 ## 6.1 Environment Requirement
 
-Original requirement:
+Original environment requirement:
 
 - Cloud Composer
 - Cloud SQL for PostgreSQL
@@ -23,14 +25,14 @@ Status:
 - Not a literal GCP deployment unless the project is deployed to Cloud Composer,
   Cloud SQL, and dbt Cloud.
 
-## 6.2 Part 0: Datasets
+## 6.2 Source Datasets
 
 Status: complete locally.
 
 The source ZIP files are staged with:
 
 ```bash
-./scripts/stage_at3_data.sh "/path/to/source-zips" data
+./scripts/stage_source_data.sh "/path/to/source-zips" data
 ```
 
 Expected staged files:
@@ -41,7 +43,7 @@ Expected staged files:
 - `data/mappings/NSW_LGA_CODE.csv`
 - `data/mappings/NSW_LGA_SUBURB.csv`
 
-## 6.3 Part 1: Airflow Bronze Load
+## 6.3 Airflow Bronze Load
 
 Status: complete locally.
 
@@ -57,7 +59,7 @@ files, and archives processed files.
 
 The local filesystem replaces the Cloud Composer storage bucket.
 
-## 6.4 Part 2: dbt Warehouse
+## 6.4 dbt Warehouse
 
 Status: complete.
 
@@ -98,7 +100,7 @@ SCD2 handling:
 - The fact table resolves SCD2 dimension surrogate keys by validity window.
 - Datamarts join through those resolved dimension keys.
 
-## 6.5 Part 3: Remaining Monthly Loads
+## 6.5 Remaining Monthly Loads
 
 Status: complete locally.
 
@@ -107,7 +109,7 @@ each monthly append, it runs dbt before archiving the file.
 
 This preserves snapshot order and SCD2 correctness.
 
-## 6.6 Part 4: Ad-Hoc Analysis
+## 6.6 Ad-Hoc Analysis
 
 Status: complete.
 
@@ -134,10 +136,10 @@ Latest local checks:
 - Gold datamarts return rows
 - analysis SQL runs end to end
 
-## 6.8 Remaining Only If Submitting As Original GCP Assignment
+## 6.8 Optional Cloud Deployment Gap
 
 These are not needed for the local personal-project version, but would be
-required if the marker expects the exact original environment:
+required to reproduce the original managed-cloud environment:
 
 - deploy the DAGs to Cloud Composer
 - upload staged files to the Composer bucket

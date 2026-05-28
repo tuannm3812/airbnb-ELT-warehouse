@@ -81,7 +81,7 @@ AIRBNB_COLS: Tuple[str, ...] = (
     "review_scores_value",
 )
 
-# RUN_PART1 is retained as a backwards-compatible variable name.
+# RUN_PART1 is retained as a backwards-compatible legacy variable name.
 RUN_INITIAL_LOAD = Variable.get(
     "RUN_INITIAL_LOAD",
     Variable.get("RUN_PART1", "true"),
@@ -631,8 +631,8 @@ with DAG(
         reference_group = TaskGroup(group_id="load_reference_data")
         dbt_group = TaskGroup(group_id="initial_dbt_snapshot")
 
-        run_part1_sql = PythonOperator(
-            task_id="run_part1_sql",
+        init_bronze_schema = PythonOperator(
+            task_id="init_bronze_schema",
             task_group=bootstrap_group,
             python_callable=run_sql_file,
             op_kwargs={"file_path": SQL_FILE_PATH},
@@ -746,8 +746,8 @@ with DAG(
             op_kwargs={"file_path": AIRBNB_052020_PATH},
         )
 
-        start >> run_part1_sql
-        run_part1_sql >> [
+        start >> init_bronze_schema
+        init_bronze_schema >> [
             load_airbnb_052020,
             load_census_g01,
             load_census_g02,

@@ -48,7 +48,7 @@ Core design choices:
 |   |-- 3_operations.md
 |   |-- 4_roadmap.md
 |   |-- 5_dashboard_guide.md
-|   |-- 6_task_coverage.md
+|   |-- 6_requirement_coverage.md
 |   |-- 7_dbt_guide.md
 |   |-- assets/
 |   |   |-- architecture_flow.drawio
@@ -61,7 +61,7 @@ Core design choices:
 |-- scripts/
 |   |-- check_pipeline_outputs.sh     # Smoke test for latest local pipeline run
 |   |-- run_quality_checks.sh         # Syntax, dbt parse, and optional Docker checks
-|   `-- stage_at3_data.sh             # Unpacks source ZIP files into local data folders
+|   `-- stage_source_data.sh          # Unpacks source ZIP files into local data folders
 |-- sql/
 |   |-- init_bronze_schema.sql        # Warehouse schema bootstrap DDL
 |   `-- analysis_queries.sql          # Business analysis query pack
@@ -128,14 +128,14 @@ The recommended local setup uses Docker Compose. It starts:
 Use the included helper to unpack the source ZIP files into `./data`:
 
 ```bash
-./scripts/stage_at3_data.sh "/path/to/source-zips" data
+./scripts/stage_source_data.sh "/path/to/source-zips" data
 ```
 
 Alternatively set `SOURCE_ARCHIVE_DIR`:
 
 ```bash
 export SOURCE_ARCHIVE_DIR="/path/to/source-zips"
-./scripts/stage_at3_data.sh
+./scripts/stage_source_data.sh
 ```
 
 Expected folder structure:
@@ -223,7 +223,7 @@ Run `sql/analysis_queries.sql` against the populated warehouse to answer:
 - How does median age correlate with revenue per active listing?
 - Which property configurations perform best in the top revenue neighbourhoods?
 - Are multi-listing hosts concentrated within a single LGA or distributed across several LGAs?
-- How often can single-listing hosts cover annualized median mortgage repayments from Airbnb revenue?
+- How often can single-listing hosts cover annualised median mortgage repayments from Airbnb revenue?
 
 ## Notes
 

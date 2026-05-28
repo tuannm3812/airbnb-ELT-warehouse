@@ -91,7 +91,7 @@ select 'analytics_gold.g_dim_property', count(*) from analytics_gold.g_dim_prope
 ## 3.9 Restage Source Data
 
 ```bash
-./scripts/stage_at3_data.sh
+./scripts/stage_source_data.sh
 ```
 
 This unpacks the source ZIPs into `data/` and removes macOS resource-fork files.
@@ -110,7 +110,7 @@ Use this when you want a fresh local database:
 docker compose down -v
 docker compose up airflow-init
 docker compose up -d
-./scripts/stage_at3_data.sh
+./scripts/stage_source_data.sh
 docker compose exec -T airflow-scheduler airflow dags trigger airbnb_census_monthly_pipeline
 ```
 
@@ -125,7 +125,7 @@ docker compose restart airflow-scheduler airflow-webserver
 If a clean rerun fails because source files were archived:
 
 ```bash
-./scripts/stage_at3_data.sh
+./scripts/stage_source_data.sh
 ```
 
 If dbt tests fail after manual experiments, perform a full reset or rerun the main pipeline with `RUN_INITIAL_LOAD=true`.

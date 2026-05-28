@@ -156,8 +156,8 @@ Best ways to inspect dbt now:
 3. Generate dbt docs when you want lineage and model descriptions.
 4. Use PostgreSQL or Metabase to inspect the built tables in `analytics_gold`.
 
-Use dbt Cloud only if you want the project to match the original GCP assignment
-environment or you want a hosted scheduler, lineage UI, and job history.
+Use dbt Cloud only if you want the project to match the original managed-cloud
+brief or you want a hosted scheduler, lineage UI, and job history.
 
 ## 7.7 What To Review First
 

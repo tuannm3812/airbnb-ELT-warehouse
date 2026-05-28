@@ -359,8 +359,8 @@ with DAG(
     tags=["airbnb", "census", "bronze"],
 ) as dag:
 
-    run_part1_sql_task = PythonOperator(
-        task_id="run_part1_sql",
+    init_bronze_schema_task = PythonOperator(
+        task_id="init_bronze_schema",
         python_callable=run_sql_file,
         op_kwargs={"file_path": SQL_FILE_PATH},
     )
@@ -422,7 +422,7 @@ with DAG(
     )
 
     # Dependency Flow
-    run_part1_sql_task >> [
+    init_bronze_schema_task >> [
         load_airbnb_task,
         load_census_g01_task,
         load_census_g02_task,
