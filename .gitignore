@@ -12,6 +12,7 @@ dbt/dbt_packages/
 dbt/logs/
 dbt/seeds/
 profiles.yml
+!docker/dbt/profiles.yml
 
 # Airflow
 .airflow/
