@@ -8,35 +8,35 @@
 {{ config(materialized='view') }}
 
 WITH src AS (
-  SELECT
+    SELECT
     -- Create Surrogate Key (NK)
-    MD5(
-      COALESCE(property_type, 'UNK') || '|' ||
-      COALESCE(room_type,     'UNK') || '|' ||
-      COALESCE(accommodates::text,  '0')
-    ) AS property_nk,
+        MD5(
+            COALESCE(property_type, 'UNK') || '|'
+            || COALESCE(room_type, 'UNK') || '|'
+            || COALESCE(accommodates::text, '0')
+        ) AS property_nk,
+        property_type,
+        room_type,
+        accommodates,
+        updated_at
+    FROM {{ ref('s_listings_clean') }}
+),
+
+latest AS (
+    SELECT
+        *,
+        ROW_NUMBER() OVER (
+            PARTITION BY property_nk
+            ORDER BY updated_at DESC
+        ) AS rn
+    FROM src
+)
+
+SELECT
+    property_nk,
     property_type,
     room_type,
     accommodates,
     updated_at
-  FROM {{ ref('s_listings_clean') }}
-),
-
-latest AS (
-  SELECT
-    *,
-    ROW_NUMBER() OVER (
-      PARTITION BY property_nk
-      ORDER BY updated_at DESC
-    ) AS rn
-  FROM src
-)
-
-SELECT
-  property_nk,
-  property_type,
-  room_type,
-  accommodates,
-  updated_at
 FROM latest
 WHERE rn = 1

@@ -19,10 +19,10 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install dbt
+      - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install dbt-core==1.7.19 dbt-postgres==1.7.19
+          pip install dbt-core==1.7.19 dbt-postgres==1.7.19 pytest psycopg2-binary sqlfluff
 
       - name: Run quality checks
         run: ./scripts/run_quality_checks.sh

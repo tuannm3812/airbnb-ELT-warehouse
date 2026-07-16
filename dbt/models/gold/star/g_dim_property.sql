@@ -7,7 +7,7 @@
 {{ config(materialized='table') }}
 
 SELECT
-    md5(property_nk || '|' || dbt_valid_from::text)     AS property_dim_id,
+    MD5(property_nk || '|' || dbt_valid_from::text) AS property_dim_id,
     property_nk,
     property_type,
     room_type,

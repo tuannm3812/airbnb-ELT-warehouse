@@ -8,33 +8,33 @@
 {{ config(materialized='view') }}
 
 WITH src AS (
-  SELECT
+    SELECT
+        host_id,
+        host_name,
+        host_since,
+        host_is_superhost,
+        host_neighbourhood,
+        updated_at
+    FROM {{ ref('s_listings_clean') }}
+    WHERE host_id IS NOT NULL
+),
+
+latest AS (
+    SELECT
+        *,
+        ROW_NUMBER() OVER (
+            PARTITION BY host_id
+            ORDER BY updated_at DESC
+        ) AS rn
+    FROM src
+)
+
+SELECT
     host_id,
     host_name,
     host_since,
     host_is_superhost,
     host_neighbourhood,
     updated_at
-  FROM {{ ref('s_listings_clean') }}
-  WHERE host_id IS NOT NULL
-),
-
-latest AS (
-  SELECT
-    *,
-    ROW_NUMBER() OVER (
-      PARTITION BY host_id
-      ORDER BY updated_at DESC
-    ) AS rn
-  FROM src
-)
-
-SELECT
-  host_id,
-  host_name,
-  host_since,
-  host_is_superhost,
-  host_neighbourhood,
-  updated_at
 FROM latest
 WHERE rn = 1

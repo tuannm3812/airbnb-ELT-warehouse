@@ -8,12 +8,12 @@
 
 SELECT
     -- Surrogate Key
-    md5(lga_code::text || '|' || dbt_valid_from::text)  AS lga_dim_id,
-    
+    MD5(lga_code::text || '|' || dbt_valid_from::text) AS lga_dim_id,
+
     -- Natural Keys & Attributes
     lga_code,
     lga_name,
-    
+
     -- SCD Metadata
     dbt_valid_from,
     dbt_valid_to

@@ -7,7 +7,7 @@
 {{ config(materialized='table') }}
 
 SELECT
-    md5(neigh_nk || '|' || dbt_valid_from::text)        AS neighbourhood_dim_id,
+    MD5(neigh_nk || '|' || dbt_valid_from::text) AS neighbourhood_dim_id,
     neigh_nk,
     listing_neighbourhood,
     dbt_valid_from,

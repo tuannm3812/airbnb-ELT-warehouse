@@ -1,0 +1,8 @@
+dbt/target/
+dbt/dbt_packages/
+dbt/logs/
+
+# The jinja templater can't parse dbt's {% snapshot %} block syntax (that
+# requires the dbt templater, which needs a dbt-core/sqlfluff pairing this
+# project's pinned dbt-core==1.7.19 doesn't have a working one for).
+dbt/snapshots/

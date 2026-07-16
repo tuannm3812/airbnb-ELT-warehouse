@@ -8,27 +8,27 @@
 {{ config(materialized='view') }}
 
 WITH src AS (
-  SELECT
-    MD5(UPPER(TRIM(listing_neighbourhood))) AS neigh_nk,
-    listing_neighbourhood,
-    updated_at
-  FROM {{ ref('s_listings_clean') }}
-  WHERE listing_neighbourhood IS NOT NULL
+    SELECT
+        MD5(UPPER(TRIM(listing_neighbourhood))) AS neigh_nk,
+        listing_neighbourhood,
+        updated_at
+    FROM {{ ref('s_listings_clean') }}
+    WHERE listing_neighbourhood IS NOT NULL
 ),
 
 latest AS (
-  SELECT
-    *,
-    ROW_NUMBER() OVER (
-      PARTITION BY neigh_nk
-      ORDER BY updated_at DESC
-    ) AS rn
-  FROM src
+    SELECT
+        *,
+        ROW_NUMBER() OVER (
+            PARTITION BY neigh_nk
+            ORDER BY updated_at DESC
+        ) AS rn
+    FROM src
 )
 
 SELECT
-  neigh_nk,
-  listing_neighbourhood,
-  updated_at
+    neigh_nk,
+    listing_neighbourhood,
+    updated_at
 FROM latest
 WHERE rn = 1

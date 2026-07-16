@@ -7,6 +7,20 @@ bash -n scripts/*.sh
 echo "Checking Python syntax..."
 python3 -m py_compile dags/*.py
 
+if command -v pytest >/dev/null 2>&1; then
+  echo "Running Python unit tests..."
+  pytest tests/
+else
+  echo "pytest not found; skipping Python unit tests."
+fi
+
+if command -v sqlfluff >/dev/null 2>&1; then
+  echo "Running SQL lint..."
+  sqlfluff lint dbt/models
+else
+  echo "sqlfluff not found; skipping SQL lint."
+fi
+
 if command -v dbt >/dev/null 2>&1; then
   echo "Running dbt parse with local project..."
   DBT_PROFILES_DIR="${DBT_PROFILES_DIR:-$(pwd)/docker/dbt}" \

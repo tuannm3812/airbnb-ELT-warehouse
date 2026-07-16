@@ -5,3 +5,5 @@ pandas
 dbt-core==1.7.19
 dbt-postgres==1.7.19
 psycopg2-binary
+pytest
+sqlfluff
