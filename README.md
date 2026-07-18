@@ -12,6 +12,31 @@ This repository is maintained as a personal data engineering project: local-firs
 
 ![Header Image](https://www.realestate.com.au/news-image/w_1280,h_720/v1743109398/news-lifestyle-content-assets/wp-content/production/capi_66e50ad6861c43dbf0bfbe364f663d5f_e58997b3f701d49d4cb6291f6204b1e1.jpeg?_i=AA)
 
+## What This Project Demonstrates
+
+![Architecture Diagram](docs/assets/architecture_flow.png)
+
+### Skills
+
+| Area | What's applied here |
+|---|---|
+| **Orchestration (Airflow)** | Idempotent, chronologically-sequenced DAGs; TaskGroups; runtime file discovery; Airflow Variables/connections |
+| **Data Modeling (dbt)** | Medallion architecture (bronze/silver/gold), SCD Type 2 dimension history via snapshots, star-schema fact/dimension design, surrogate-key resolution via validity-window joins |
+| **SQL** | CTE-heavy analytical queries answering real business questions (revenue, demographics correlation, mortgage affordability) |
+| **Data Quality & CI/CD** | dbt tests, pytest unit tests for ingestion logic, GitHub Actions CI running syntax checks, unit tests, SQL lint, and `dbt parse` on every push |
+| **Python** | Dynamic, self-healing CSV-to-Postgres ingestion (schema inference, drift recovery) |
+| **Infrastructure** | Docker Compose stack running Airflow, Postgres, dbt, and Metabase together for a reproducible local environment |
+| **BI** | Metabase dashboards over the Gold layer |
+
+### Engineering Decisions
+
+The parts of this project that involved real debugging and trade-offs, not just wiring tools together:
+
+- **Eliminated ~300 lines of duplicated ingestion logic** shared between the two Airflow DAGs — but the two copies had quietly diverged (one archived files inline, the other ran archiving as a separate, independently observable task, and only one had a `truncate` flag). Reconciled both into one shared [`dags/utils/helpers.py`](dags/utils/helpers.py) module without changing either DAG's behavior, backed by a [pytest suite](tests/test_dag_helpers.py).
+- **Avoided a subtle SCD2 correctness bug.** Airflow's dynamic task mapping runs mapped instances without guaranteed order — using it for monthly file processing would silently break the chronological snapshot history the whole warehouse depends on (see [docs/2_architecture.md#28-why-sequential-dbt-runs-matter](docs/2_architecture.md#28-why-sequential-dbt-runs-matter)). Kept sequential processing rather than trading correctness for a nicer Airflow UI.
+- **Debugged a real tooling incompatibility.** sqlfluff's dbt templater depends on internal dbt-core APIs that no longer exist in the project's pinned `dbt-core==1.7.19` — traced it to an `ImportError` several layers deep, then switched to sqlfluff's jinja templater with dbt builtins to get working, dependency-free SQL linting into CI.
+- **Kept the test suite fast and CI-friendly** by lazily importing `PostgresHook` only inside the two functions that actually need a live Airflow connection, so ingestion-helper unit tests run under plain pytest without installing Airflow at all.
+
 ## Overview
 
 The warehouse combines monthly Airbnb listing extracts with ABS Census G01/G02 data and NSW LGA mapping files. It produces a dimensional model and analytics marts for rental-market performance, host concentration, neighbourhood demand, and mortgage-affordability analysis.
@@ -32,7 +57,9 @@ Core design choices:
 |       `-- ci.yml                    # Lightweight CI checks
 |-- dags/
 |   |-- airbnb_census_pipeline.py     # Main Airflow pipeline for initial and monthly loads
-|   `-- initial_bronze_load.py        # Standalone Bronze bootstrap DAG
+|   |-- initial_bronze_load.py        # Standalone Bronze bootstrap DAG
+|   `-- utils/
+|       `-- helpers.py                # Shared ingestion helpers used by both DAGs
 |-- dbt/
 |   |-- models/
 |   |   |-- bronze/                   # Source-facing raw models
@@ -54,10 +81,8 @@ Core design choices:
 |   |   |-- architecture_flow.drawio
 |   |   |-- architecture_flow.png
 |   |   `-- screenshots/
-|   |-- reports/
-|   |   `-- airbnb_census_warehouse_report.pdf
-|   `-- archive/
-|       `-- local_demo.md
+|   `-- reports/
+|       `-- airbnb_census_warehouse_report.pdf
 |-- scripts/
 |   |-- check_pipeline_outputs.sh     # Smoke test for latest local pipeline run
 |   |-- run_quality_checks.sh         # Syntax, dbt parse, and optional Docker checks
@@ -65,8 +90,10 @@ Core design choices:
 |-- sql/
 |   |-- init_bronze_schema.sql        # Warehouse schema bootstrap DDL
 |   `-- analysis_queries.sql          # Business analysis query pack
+|-- tests/
+|   `-- test_dag_helpers.py           # pytest coverage for dags/utils/helpers.py
+|-- .sqlfluff                         # SQL lint rules (matches project style)
 |-- docker-compose.yml
-|-- PROJECT_SUMMARY.md
 |-- requirements.txt
 `-- README.md
 ```
@@ -82,8 +109,6 @@ For the project roadmap, see [docs/4_roadmap.md](docs/4_roadmap.md).
 For Metabase dashboard setup, see [docs/5_dashboard_guide.md](docs/5_dashboard_guide.md).
 
 For dbt model flow and SCD2 details, see [docs/7_dbt_guide.md](docs/7_dbt_guide.md).
-
-For a concise portfolio-oriented overview, see [PROJECT_SUMMARY.md](PROJECT_SUMMARY.md).
 
 Prerequisites:
 
@@ -114,99 +139,25 @@ Install Python dependencies:
 pip install -r requirements.txt
 ```
 
-## Local Airflow + dbt Setup (No Google Cloud)
+## Quick Start
 
-The recommended local setup uses Docker Compose. It starts:
-
-- PostgreSQL for both Airflow metadata and the analytics warehouse.
-- Airflow webserver and scheduler.
-- dbt Core inside the Airflow image.
-- Metabase for local BI dashboards.
-
-### 1. Stage source data
-
-Use the included helper to unpack the source ZIP files into `./data`:
+Runs entirely locally with Docker Compose (Airflow + PostgreSQL + dbt Core + Metabase, no Google Cloud required):
 
 ```bash
+cp .env.example .env && echo "AIRFLOW_UID=$(id -u)" >> .env
 ./scripts/stage_source_data.sh "/path/to/source-zips" data
+docker compose up airflow-init && docker compose up -d
 ```
 
-Alternatively set `SOURCE_ARCHIVE_DIR`:
+Open Airflow at `http://localhost:8080` (`admin` / `admin`) and trigger `airbnb_census_monthly_pipeline` with `RUN_INITIAL_LOAD=true`. This loads the baseline, runs dbt, then processes each monthly file in chronological order.
 
-```bash
-export SOURCE_ARCHIVE_DIR="/path/to/source-zips"
-./scripts/stage_source_data.sh
-```
-
-Expected folder structure:
-
-- `data/airbnb/05_2020.csv` and `06_2020.csv`...`04_2021.csv`
-- `data/census/G01/2016Census_G01_NSW_LGA.csv`
-- `data/census/G02/2016Census_G02_NSW_LGA.csv`
-- `data/mappings/NSW_LGA_CODE.csv`
-- `data/mappings/NSW_LGA_SUBURB.csv`
-
-### 2. Configure local environment
-
-```bash
-cp .env.example .env
-```
-
-On macOS/Linux, set `AIRFLOW_UID` to your local user id:
-
-```bash
-echo "AIRFLOW_UID=$(id -u)" >> .env
-```
-
-### 3. Start the stack
-
-```bash
-docker compose up airflow-init
-docker compose up -d
-```
-
-Open Airflow at `http://localhost:8080`.
-
-Open Metabase at `http://localhost:3000`.
-
-Default local login:
-
-- username: `admin`
-- password: `admin`
-
-Metabase asks you to create a local admin account on first launch.
-
-### 4. Run the pipeline
-
-The Docker setup runs dbt locally with `DBT_RUN_MODE=local`, so no dbt Cloud credentials are required.
-
-Trigger `airbnb_census_monthly_pipeline` with `RUN_INITIAL_LOAD=true`.
-
-This path loads the baseline, runs dbt, then processes each monthly file in chronological order. The standalone `airbnb_census_initial_bronze_load` DAG is useful for Bronze-only testing, but it does not run the full dbt sequence.
-
-For manual dbt checks inside the Airflow container:
-
-```bash
-docker compose exec airflow-scheduler bash
-cd /opt/airflow/dbt
-dbt build
-```
-
-To verify the latest pipeline run and key warehouse outputs:
+Verify the run:
 
 ```bash
 ./scripts/check_pipeline_outputs.sh
 ```
 
-## Running The Pipeline
-
-1. Deploy the contents of `dags/` to Airflow.
-2. Deploy the dbt project in `dbt/` to dbt Cloud or your dbt runner.
-3. Stage the source CSV files in `${AIRFLOW_DATA_PATH:-/home/airflow/gcs/data}` with folders:
-   - `airbnb/`, `census/G01/`, `census/G02/`, `mappings/`
-4. Trigger the `airbnb_census_monthly_pipeline` DAG.
-
-The main DAG bootstraps the Bronze schema with `sql/init_bronze_schema.sql`, loads the May 2020 baseline data and reference files, runs dbt, then processes the remaining monthly Airbnb extracts in chronological order. Each monthly load appends to `bronze.airbnb_listings_raw`, triggers dbt, and archives the processed CSV.
+For the full step-by-step walkthrough, dbt Cloud mode, and troubleshooting, see [docs/1_instructions.md](docs/1_instructions.md) and [docs/3_operations.md](docs/3_operations.md).
 
 ## Data Model
 

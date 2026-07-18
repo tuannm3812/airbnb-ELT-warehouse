@@ -1,80 +1,122 @@
-<mxfile host="app.diagrams.net" modified="2026-05-28T00:00:00.000Z" agent="Codex" version="24.7.17" type="device">
-  <diagram id="airbnb-elt-warehouse" name="Airbnb ELT Warehouse">
-    <mxGraphModel dx="1422" dy="794" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="900" math="0" shadow="0">
+<mxfile host="app.diagrams.net">
+  <diagram name="Page-1" id="zhNVk6KVMsE4ygrAg-Jo">
+    <mxGraphModel grid="1" page="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" pageScale="1" pageWidth="1100" pageHeight="850" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
-        <mxCell id="title" value="Airbnb Census ELT Warehouse - Local Architecture" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=24;fontStyle=1;fontColor=#1F2937;" vertex="1" parent="1">
-          <mxGeometry x="360" y="30" width="880" height="40" as="geometry" />
+        <mxCell id="JkmVntfX3DJjlj6YvCSV-3" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#E6E6E6;movable=0;resizable=0;rotatable=0;deletable=0;editable=0;locked=1;connectable=0;" value="" vertex="1">
+          <mxGeometry height="480" width="960" x="40" y="80" as="geometry" />
         </mxCell>
-        <mxCell id="source" value="Source ZIPs&#xa;Airbnb Listings&#xa;Census G01/G02&#xa;NSW LGA Mapping" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF7ED;strokeColor=#F97316;fontColor=#111827;arcSize=8;fontSize=14;" vertex="1" parent="1">
-          <mxGeometry x="70" y="140" width="180" height="110" as="geometry" />
+        <mxCell id="JkmVntfX3DJjlj6YvCSV-28" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=default;dashed=1;" value="" vertex="1">
+          <mxGeometry height="200" width="480" x="340" y="160" as="geometry" />
         </mxCell>
-        <mxCell id="local_data" value="Local Data Folders&#xa;data/airbnb&#xa;data/census&#xa;data/mappings" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EFF6FF;strokeColor=#3B82F6;fontColor=#111827;arcSize=8;fontSize=14;" vertex="1" parent="1">
-          <mxGeometry x="310" y="140" width="180" height="110" as="geometry" />
+        <mxCell id="JkmVntfX3DJjlj6YvCSV-1" parent="1" style="text;whiteSpace=wrap;fontSize=24;fontFamily=Google Sans;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="Airbnb &amp; Census ELT Warehouse — High Level Architecture" vertex="1">
+          <mxGeometry height="40" width="670" x="40" y="20" as="geometry" />
         </mxCell>
-        <mxCell id="airflow" value="Airflow DAG&#xa;airbnb_census_monthly_pipeline&#xa;Sequential monthly loads&#xa;dbt build after each load" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ECFDF5;strokeColor=#10B981;fontColor=#111827;arcSize=8;fontSize=14;" vertex="1" parent="1">
-          <mxGeometry x="550" y="130" width="230" height="130" as="geometry" />
+        <mxCell id="JkmVntfX3DJjlj6YvCSV-4" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=left;verticalAlign=top;rounded=0;fontFamily=Google Sans;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;fontSize=16;fontStyle=1" value="Data Sources" vertex="1">
+          <mxGeometry height="40" width="110" x="80" y="100" as="geometry" />
         </mxCell>
-        <mxCell id="postgres" value="PostgreSQL Warehouse" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F8FAFC;strokeColor=#64748B;fontColor=#111827;arcSize=8;fontSize=16;fontStyle=1;" vertex="1" parent="1">
-          <mxGeometry x="900" y="105" width="500" height="520" as="geometry" />
-        </mxCell>
-        <mxCell id="bronze_raw" value="bronze&#xa;Raw Airflow-loaded tables&#xa;All fields text-first" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FEF3C7;strokeColor=#D97706;fontColor=#111827;arcSize=8;fontSize=14;" vertex="1" parent="1">
-          <mxGeometry x="950" y="165" width="180" height="95" as="geometry" />
-        </mxCell>
-        <mxCell id="dbt_bronze" value="analytics_bronze&#xa;dbt source-facing views" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FEF3C7;strokeColor=#D97706;fontColor=#111827;arcSize=8;fontSize=14;" vertex="1" parent="1">
-          <mxGeometry x="1170" y="165" width="180" height="95" as="geometry" />
-        </mxCell>
-        <mxCell id="silver" value="analytics_silver&#xa;Cleaned and typed models&#xa;Entity prep models&#xa;Suburb-LGA bridge" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E0F2FE;strokeColor=#0284C7;fontColor=#111827;arcSize=8;fontSize=14;" vertex="1" parent="1">
-          <mxGeometry x="950" y="310" width="180" height="110" as="geometry" />
-        </mxCell>
-        <mxCell id="snapshots" value="silver snapshots&#xa;snap_host&#xa;snap_property&#xa;snap_neighbourhood&#xa;snap_lga" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F3E8FF;strokeColor=#9333EA;fontColor=#111827;arcSize=8;fontSize=14;" vertex="1" parent="1">
-          <mxGeometry x="1170" y="310" width="180" height="110" as="geometry" />
-        </mxCell>
-        <mxCell id="gold" value="analytics_gold Star Schema&#xa;g_fact_listing_monthly&#xa;g_dim_host/property/neighbourhood/LGA&#xa;g_census_g01/g02" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ECFCCB;strokeColor=#65A30D;fontColor=#111827;arcSize=8;fontSize=14;" vertex="1" parent="1">
-          <mxGeometry x="950" y="470" width="400" height="105" as="geometry" />
-        </mxCell>
-        <mxCell id="marts" value="Gold Data Marts&#xa;dm_listing_neighbourhood&#xa;dm_property_type&#xa;dm_host_neighbourhood" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#DCFCE7;strokeColor=#16A34A;fontColor=#111827;arcSize=8;fontSize=14;" vertex="1" parent="1">
-          <mxGeometry x="960" y="675" width="240" height="105" as="geometry" />
-        </mxCell>
-        <mxCell id="consumers" value="Consumers&#xa;SQL analysis queries&#xa;Metabase dashboards&#xa;Portfolio screenshots" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F1F5F9;strokeColor=#475569;fontColor=#111827;arcSize=8;fontSize=14;" vertex="1" parent="1">
-          <mxGeometry x="1280" y="675" width="220" height="105" as="geometry" />
-        </mxCell>
-        <mxCell id="e1" style="endArrow=block;html=1;rounded=0;strokeWidth=2;strokeColor=#64748B;" edge="1" parent="1" source="source" target="local_data">
+        <mxCell id="JkmVntfX3DJjlj6YvCSV-15" edge="1" parent="1" source="JkmVntfX3DJjlj6YvCSV-5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="JkmVntfX3DJjlj6YvCSV-14">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="e2" style="endArrow=block;html=1;rounded=0;strokeWidth=2;strokeColor=#64748B;" edge="1" parent="1" source="local_data" target="airflow">
+        <mxCell id="JkmVntfX3DJjlj6YvCSV-5" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#808080;" value="" vertex="1">
+          <mxGeometry height="200" width="160" x="80" y="160" as="geometry" />
+        </mxCell>
+        <mxCell id="JkmVntfX3DJjlj6YvCSV-6" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fontFamily=Google Sans;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;align=left;" value="&lt;div&gt;&amp;nbsp; &amp;nbsp;&amp;nbsp;&lt;b&gt;Airbnb listings&lt;/b&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;&amp;nbsp; &amp;nbsp;&amp;nbsp;&lt;/span&gt;(monthly CSV)&lt;/div&gt;" vertex="1">
+          <mxGeometry height="40" width="130" x="95" y="180" as="geometry" />
+        </mxCell>
+        <mxCell id="JkmVntfX3DJjlj6YvCSV-7" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fontFamily=Google Sans;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;align=left;" value="&amp;nbsp; &amp;nbsp;&amp;nbsp;&lt;b&gt;NSW LGA mappings&lt;/b&gt;" vertex="1">
+          <mxGeometry height="40" width="130" x="95" y="300" as="geometry" />
+        </mxCell>
+        <mxCell id="JkmVntfX3DJjlj6YvCSV-8" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fontFamily=Google Sans;fontSource=https://fonts.googleapis.com/css?family=Google+Sans;align=left;" value="&amp;nbsp; &amp;nbsp;&amp;nbsp;&lt;span style=&quot;background-color: transparent;&quot;&gt;&lt;b&gt;ABS Census&lt;br&gt;&lt;/b&gt;&lt;/span&gt;&lt;div&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;&amp;nbsp; &amp;nbsp;&amp;nbsp;&lt;/span&gt;G01 / G02&lt;/div&gt;" vertex="1">
+          <mxGeometry height="40" width="130" x="95" y="240" as="geometry" />
+        </mxCell>
+        <mxCell id="JkmVntfX3DJjlj6YvCSV-24" edge="1" parent="1" source="JkmVntfX3DJjlj6YvCSV-14" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="JkmVntfX3DJjlj6YvCSV-22" value="">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="e3" style="endArrow=block;html=1;rounded=0;strokeWidth=2;strokeColor=#64748B;" edge="1" parent="1" source="airflow" target="bronze_raw">
+        <mxCell id="JkmVntfX3DJjlj6YvCSV-14" parent="1" style="swimlane;fontFamily=Google Sans;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;align=left;fillColor=#CC6600;fontColor=#FFFFFF;" value="    Bronze" vertex="1">
+          <mxGeometry height="120" width="120" x="360" y="200" as="geometry">
+            <mxRectangle height="30" width="80" x="320" y="175" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="JkmVntfX3DJjlj6YvCSV-20" parent="JkmVntfX3DJjlj6YvCSV-14" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=left;verticalAlign=top;rounded=0;fontFamily=Google Sans;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="&lt;span style=&quot;font-weight: 700; white-space: nowrap;&quot;&gt;&amp;nbsp; &amp;nbsp;&amp;nbsp;&lt;/span&gt;Raw, source-&lt;span style=&quot;font-weight: 700; white-space: nowrap;&quot;&gt;&amp;nbsp; &amp;nbsp;&amp;nbsp;&lt;/span&gt;aligned tables&lt;br&gt;&lt;div&gt;&lt;span style=&quot;font-weight: 700; white-space: nowrap; background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;&amp;nbsp; &amp;nbsp;&amp;nbsp;&lt;/span&gt;(all TEXT).&lt;/div&gt;" vertex="1">
+          <mxGeometry height="70" width="120" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="JkmVntfX3DJjlj6YvCSV-17" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;rounded=0;fontFamily=Google Sans;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="&lt;div&gt;load → dbt build&lt;/div&gt;&lt;div&gt;×12, sequential&lt;/div&gt;" vertex="1">
+          <mxGeometry height="30" width="100" x="245.3" y="270" as="geometry" />
+        </mxCell>
+        <mxCell id="JkmVntfX3DJjlj6YvCSV-19" parent="1" style="shape=image;verticalLabelPosition=bottom;verticalAlign=top;imageAspect=0;image=https://upload.wikimedia.org/wikipedia/commons/7/71/AirflowLogo.svg;" value="" vertex="1">
+          <mxGeometry height="35" width="90.59" x="245.3" y="210" as="geometry" />
+        </mxCell>
+        <mxCell id="JkmVntfX3DJjlj6YvCSV-27" edge="1" parent="1" source="JkmVntfX3DJjlj6YvCSV-22" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="JkmVntfX3DJjlj6YvCSV-25" value="">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="e4" style="endArrow=block;html=1;rounded=0;strokeWidth=2;strokeColor=#64748B;" edge="1" parent="1" source="bronze_raw" target="dbt_bronze">
+        <mxCell id="JkmVntfX3DJjlj6YvCSV-22" parent="1" style="swimlane;fontFamily=Google Sans;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;align=left;fillColor=#808080;fontColor=#FFFFFF;" value="    Silver" vertex="1">
+          <mxGeometry height="120" width="120" x="520" y="200" as="geometry">
+            <mxRectangle height="30" width="80" x="320" y="175" as="alternateBounds" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="JkmVntfX3DJjlj6YvCSV-23" parent="JkmVntfX3DJjlj6YvCSV-22" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=left;verticalAlign=top;rounded=0;fontFamily=Google Sans;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="&lt;span style=&quot;font-weight: 700; white-space: nowrap;&quot;&gt;&amp;nbsp; &amp;nbsp;&amp;nbsp;&lt;/span&gt;&lt;span style=&quot;background-color: transparent;&quot;&gt;Cleaned, typed,&lt;br&gt;&lt;/span&gt;&lt;div&gt;&lt;span style=&quot;font-weight: 700; white-space: nowrap; background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;&amp;nbsp; &amp;nbsp;&amp;nbsp;&lt;/span&gt;deduplicated&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;font-weight: 700; white-space: nowrap; background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;&amp;nbsp; &amp;nbsp;&amp;nbsp;&lt;/span&gt;entities + bridge.&lt;/div&gt;" vertex="1">
+          <mxGeometry height="70" width="120" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="JkmVntfX3DJjlj6YvCSV-34" edge="1" parent="1" source="JkmVntfX3DJjlj6YvCSV-25" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="JkmVntfX3DJjlj6YvCSV-29" value="">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="e5" style="endArrow=block;html=1;rounded=0;strokeWidth=2;strokeColor=#64748B;" edge="1" parent="1" source="dbt_bronze" target="silver">
-          <mxGeometry relative="1" as="geometry" />
+        <mxCell id="JkmVntfX3DJjlj6YvCSV-25" parent="1" style="swimlane;fontFamily=Google Sans;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;align=left;fillColor=#CCCC00;fontColor=#FFFFFF;" value="    Gold" vertex="1">
+          <mxGeometry height="120" width="120" x="680" y="200" as="geometry">
+            <mxRectangle height="30" width="80" x="320" y="175" as="alternateBounds" />
+          </mxGeometry>
         </mxCell>
-        <mxCell id="e6" style="endArrow=block;html=1;rounded=0;strokeWidth=2;strokeColor=#64748B;" edge="1" parent="1" source="silver" target="snapshots">
-          <mxGeometry relative="1" as="geometry" />
+        <mxCell id="JkmVntfX3DJjlj6YvCSV-26" parent="JkmVntfX3DJjlj6YvCSV-25" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=left;verticalAlign=top;rounded=0;fontFamily=Google Sans;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="&lt;span style=&quot;font-weight: 700; white-space: nowrap;&quot;&gt;&amp;nbsp; &amp;nbsp;&amp;nbsp;&lt;/span&gt;Star schema,&lt;span style=&quot;font-weight: 700; white-space: nowrap;&quot;&gt;&amp;nbsp; &amp;nbsp;&amp;nbsp;&lt;/span&gt;dimensions&lt;br&gt;&lt;div&gt;&lt;span style=&quot;font-weight: 700; white-space: nowrap; background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;&amp;nbsp; &amp;nbsp;&amp;nbsp;&lt;/span&gt;+ data marts.&lt;/div&gt;" vertex="1">
+          <mxGeometry height="70" width="120" y="40" as="geometry" />
         </mxCell>
-        <mxCell id="e7" style="endArrow=block;html=1;rounded=0;strokeWidth=2;strokeColor=#64748B;" edge="1" parent="1" source="snapshots" target="gold">
-          <mxGeometry relative="1" as="geometry" />
+        <mxCell id="JkmVntfX3DJjlj6YvCSV-29" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fontFamily=Google Sans;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;align=left;fillColor=#dae8fc;strokeColor=#6c8ebf;" value="&lt;div&gt;&lt;span style=&quot;font-weight: 700; white-space: nowrap; background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;&amp;nbsp; &amp;nbsp;&amp;nbsp;&lt;/span&gt;Dashboards over&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;font-weight: 700; white-space: nowrap; background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;&amp;nbsp; &amp;nbsp;&amp;nbsp;&lt;/span&gt;the Gold marts&lt;/div&gt;" vertex="1">
+          <mxGeometry height="120" width="120" x="840" y="200" as="geometry" />
         </mxCell>
-        <mxCell id="e8" style="endArrow=block;html=1;rounded=0;strokeWidth=2;strokeColor=#64748B;" edge="1" parent="1" source="gold" target="marts">
-          <mxGeometry relative="1" as="geometry" />
+        <mxCell id="JkmVntfX3DJjlj6YvCSV-31" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=left;verticalAlign=top;rounded=0;fontFamily=Google Sans;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;fontSize=16;fontStyle=1" value="Visualize &amp;amp; Consume" vertex="1">
+          <mxGeometry height="40" width="110" x="840" y="100" as="geometry" />
         </mxCell>
-        <mxCell id="e9" style="endArrow=block;html=1;rounded=0;strokeWidth=2;strokeColor=#64748B;" edge="1" parent="1" source="marts" target="consumers">
-          <mxGeometry relative="1" as="geometry" />
+        <mxCell id="JkmVntfX3DJjlj6YvCSV-32" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=left;verticalAlign=top;rounded=0;fontFamily=Google Sans;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;fontSize=16;fontStyle=1" value="Medallion Architecture" vertex="1">
+          <mxGeometry height="40" width="110" x="340" y="100" as="geometry" />
         </mxCell>
-        <mxCell id="dbt_runner" value="dbt Core runner&#xa;inside Airflow container" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFE4E6;strokeColor=#E11D48;fontColor=#111827;arcSize=8;fontSize=14;" vertex="1" parent="1">
-          <mxGeometry x="560" y="365" width="210" height="80" as="geometry" />
+        <mxCell id="JkmVntfX3DJjlj6YvCSV-35" parent="1" style="shape=image;verticalLabelPosition=bottom;verticalAlign=top;imageAspect=0;image=https://images.icon-icons.com/2699/PNG/512/metabase_logo_icon_168103.png;" value="" vertex="1">
+          <mxGeometry height="40" width="80" x="855" y="205" as="geometry" />
         </mxCell>
-        <mxCell id="e10" style="endArrow=block;html=1;rounded=0;strokeWidth=2;dashed=1;strokeColor=#E11D48;" edge="1" parent="1" source="airflow" target="dbt_runner">
-          <mxGeometry relative="1" as="geometry" />
+        <mxCell id="JkmVntfX3DJjlj6YvCSV-39" parent="1" style="shape=image;verticalLabelPosition=bottom;verticalAlign=top;imageAspect=0;image=https://assets.streamlinehq.com/image/private/w_300,h_300,ar_1/f_auto/v1/icons/3/dbt-ytv7trkoaqcnvr5yxcvvk.png/dbt-384wi7nth5d4pvytczw6vn.png?_a=DATAiZAAZAA0;" value="" vertex="1">
+          <mxGeometry height="75" width="75" x="542.5" y="140" as="geometry" />
         </mxCell>
-        <mxCell id="e11" style="endArrow=block;html=1;rounded=0;strokeWidth=2;dashed=1;strokeColor=#E11D48;" edge="1" parent="1" source="dbt_runner" target="dbt_bronze">
-          <mxGeometry relative="1" as="geometry" />
+        <mxCell id="JkmVntfX3DJjlj6YvCSV-40" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=default;dashed=1;verticalAlign=top;fontSize=16;fontFamily=Google Sans;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;fontStyle=1;movable=0;resizable=0;rotatable=0;deletable=0;editable=0;locked=1;connectable=0;" value="CI&amp;nbsp; ·&amp;nbsp; Quality Gate&amp;nbsp; ·&amp;nbsp; Reproducibility" vertex="1">
+          <mxGeometry height="140" width="880" x="80" y="400" as="geometry" />
+        </mxCell>
+        <mxCell id="JkmVntfX3DJjlj6YvCSV-41" parent="1" style="rounded=1;whiteSpace=wrap;html=1;align=left;fontFamily=Google Sans;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DGoogle%2BSans;" value="&lt;div&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;&amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp;&lt;/span&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;&amp;nbsp; &amp;nbsp;&lt;/span&gt;&lt;b&gt;sqlfluff&lt;/b&gt;&lt;/div&gt;&lt;span style=&quot;color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255)); background-color: transparent;&quot;&gt;&amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp;&lt;/span&gt;&lt;span style=&quot;color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255)); background-color: transparent;&quot;&gt;&amp;nbsp; &amp;nbsp;&lt;/span&gt;lint&amp;nbsp;&lt;br&gt;&lt;div&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;&amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp;&lt;/span&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;&amp;nbsp; &amp;nbsp;&lt;/span&gt;dbt/models&lt;/div&gt;" vertex="1">
+          <mxGeometry height="70" width="150" x="443" y="450" as="geometry" />
+        </mxCell>
+        <mxCell id="JkmVntfX3DJjlj6YvCSV-42" parent="1" style="shape=image;verticalLabelPosition=bottom;verticalAlign=top;imageAspect=0;image=https://sqlfluff.com/img/sqlfluff-avatar.png;" value="" vertex="1">
+          <mxGeometry height="40" width="40" x="450" y="465" as="geometry" />
+        </mxCell>
+        <mxCell id="JkmVntfX3DJjlj6YvCSV-43" parent="1" style="rounded=1;whiteSpace=wrap;html=1;align=left;fontFamily=Google Sans;fontSource=https://fonts.googleapis.com/css?family=Google+Sans;" value="&lt;div&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;&amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp;&lt;/span&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;&amp;nbsp; &amp;nbsp;&lt;/span&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;&lt;b&gt;dbt parse&lt;/b&gt;&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;&amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp;&lt;/span&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;&amp;nbsp; &amp;nbsp;&lt;/span&gt;structural&amp;nbsp;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;&amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp;&lt;/span&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;&amp;nbsp; &amp;nbsp;&lt;/span&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;check&lt;/span&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="70" width="150" x="616" y="450" as="geometry" />
+        </mxCell>
+        <mxCell id="JkmVntfX3DJjlj6YvCSV-44" parent="1" style="rounded=1;whiteSpace=wrap;html=1;align=left;fontFamily=Google Sans;fontSource=https://fonts.googleapis.com/css?family=Google+Sans;" value="&lt;div&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;&amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp;&lt;/span&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;&amp;nbsp; &amp;nbsp;&lt;/span&gt;&lt;b&gt;Docker&amp;nbsp;&lt;/b&gt;&lt;/div&gt;&lt;span style=&quot;color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255)); background-color: transparent;&quot;&gt;&amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp;&lt;/span&gt;&lt;span style=&quot;color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255)); background-color: transparent;&quot;&gt;&amp;nbsp; &amp;nbsp;&lt;/span&gt;reproducible&amp;nbsp;&amp;nbsp;&lt;br&gt;&lt;div&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;&amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp;&lt;/span&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;&amp;nbsp; &amp;nbsp;&lt;/span&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;local&amp;nbsp;&lt;/span&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;stack&lt;/span&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="70" width="150" x="790" y="450" as="geometry" />
+        </mxCell>
+        <mxCell id="JkmVntfX3DJjlj6YvCSV-45" parent="1" style="rounded=1;whiteSpace=wrap;html=1;align=left;fontFamily=Google Sans;fontSource=https://fonts.googleapis.com/css?family=Google+Sans;" value="&lt;div&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;&amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp;&lt;/span&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;&amp;nbsp;&lt;/span&gt;&lt;b&gt;GitHub Actions&lt;/b&gt;&lt;/div&gt;&amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; runs on every&amp;nbsp;&lt;br&gt;&lt;div&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;&amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp;&lt;/span&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;&amp;nbsp;&lt;/span&gt;push&lt;/div&gt;" vertex="1">
+          <mxGeometry height="70" width="150" x="95.3" y="450" as="geometry" />
+        </mxCell>
+        <mxCell id="JkmVntfX3DJjlj6YvCSV-46" parent="1" style="rounded=1;whiteSpace=wrap;html=1;align=left;fontFamily=Google Sans;fontSource=https://fonts.googleapis.com/css?family=Google+Sans;" value="&lt;div&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;&amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp;&lt;/span&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;&amp;nbsp;&lt;b&gt;pytest&lt;/b&gt;&lt;/span&gt;&lt;/div&gt;&amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; dags/utils/&lt;br&gt;&lt;div&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;&amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp; &amp;nbsp;&lt;/span&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;&amp;nbsp;&lt;/span&gt;helpers.py&lt;/div&gt;" vertex="1">
+          <mxGeometry height="70" width="150" x="269" y="450" as="geometry" />
+        </mxCell>
+        <mxCell id="JkmVntfX3DJjlj6YvCSV-49" parent="1" style="shape=image;verticalLabelPosition=bottom;verticalAlign=top;imageAspect=0;image=https://www.svgrepo.com/show/306098/githubactions.svg;" value="" vertex="1">
+          <mxGeometry height="30" width="30" x="100" y="470" as="geometry" />
+        </mxCell>
+        <mxCell id="JkmVntfX3DJjlj6YvCSV-50" parent="1" style="shape=image;verticalLabelPosition=bottom;verticalAlign=top;imageAspect=0;image=https://upload.wikimedia.org/wikipedia/commons/b/ba/Pytest_logo.svg;" value="" vertex="1">
+          <mxGeometry height="30" width="30" x="275.6" y="470" as="geometry" />
+        </mxCell>
+        <mxCell id="JkmVntfX3DJjlj6YvCSV-51" parent="1" style="shape=image;verticalLabelPosition=bottom;verticalAlign=top;imageAspect=0;image=https://assets.streamlinehq.com/image/private/w_300,h_300,ar_1/f_auto/v1/icons/3/dbt-icon-sefw4nnptjlk5lk13atgvm.png/dbt-icon-2yxlz1fvy25mvn5scgnlw.png?_a=DATAiZAAZAA0;" value="" vertex="1">
+          <mxGeometry height="30" width="30" x="630" y="470" as="geometry" />
+        </mxCell>
+        <mxCell id="JkmVntfX3DJjlj6YvCSV-52" parent="1" style="shape=image;verticalLabelPosition=bottom;verticalAlign=top;imageAspect=0;image=https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ3xpkFPJLkVE2ZS4sg3VNKDR3qyiPWkiH2PuoVyIBK4Pd_FJjXmgmikUc5&amp;s=10;" value="" vertex="1">
+          <mxGeometry height="30" width="41.67" x="798.3299999999999" y="470" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>

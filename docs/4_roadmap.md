@@ -15,7 +15,7 @@ Completed:
 - Lightweight CI workflow and local quality-check script.
 - Smoke test for latest run and key warehouse outputs.
 - Numbered project documentation.
-- Portfolio-oriented `PROJECT_SUMMARY.md`.
+- Portfolio-oriented README with a skills/highlights section and architecture diagram.
 
 ## 4.2 Next Priorities
 
@@ -86,13 +86,13 @@ Deliverables:
 
 - architecture diagram refresh
 - dashboard screenshots
-- final `PROJECT_SUMMARY.md`
+- final pass on the README's highlights/skills section
 - short LinkedIn/GitHub project writeup
 
 ## 4.3 Suggested Immediate Sequence
 
 1. Build the first Metabase dashboard over `analytics_gold`.
 2. Add screenshots under `docs/assets/screenshots/`.
-3. Add more dashboard screenshots and final findings to `PROJECT_SUMMARY.md`.
+3. Add more dashboard screenshots and final findings to the README.
 4. Add SQL linting.
 5. Refactor monthly processing to dynamic task mapping.
